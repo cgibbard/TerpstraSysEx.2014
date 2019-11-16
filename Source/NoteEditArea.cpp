@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 #include "ViewConstants.h"
 //[/Headers]
 
@@ -103,7 +104,8 @@ void NoteEditArea::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void NoteEditArea::resized()

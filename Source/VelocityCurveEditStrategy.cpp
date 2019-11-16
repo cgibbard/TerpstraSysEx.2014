@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "Main.h"
 #include "VelocityCurveEditStrategy.h"
 
 
@@ -317,7 +318,7 @@ Array<Point<float>> VelocityCurveSegmentEditStrategyBase::getSegmentPoints()
 
 void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g)
 {
-	g.setColour(Colours::black);
+	g.setColour(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
 
 	// Circles around the point
 	for (int x = 0; x < 128; x++)
@@ -347,7 +348,7 @@ void VelocityCurveSegmentEditStrategyBase::drawSegmentPoints(Graphics& g)
 
 void VelocityCurveSegmentEditStrategyBase::drawCurve(Graphics& g)
 {
-	g.setColour(Colours::black);
+	g.setColour(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
 	Path drawedLine = createCurveToDraw();
 	g.strokePath(drawedLine, PathStrokeType(1.000f));
 }

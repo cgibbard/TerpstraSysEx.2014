@@ -40,7 +40,7 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 	addAndMakeVisible(activeMacroButtonColourEdit);
 	activeMacroButtonColourEdit->setVisible(true);
 	activeMacroButtonColourEdit->addChangeListener(this);
-	//[/Constructor_pre]
+    //[/Constructor_pre]
 
     addAndMakeVisible (labelExprContrSensivity = new Label ("new label",
                                                             TRANS("Expression pedal sensivity:")));
@@ -150,7 +150,8 @@ void GeneralOptionsDlg::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void GeneralOptionsDlg::resized()

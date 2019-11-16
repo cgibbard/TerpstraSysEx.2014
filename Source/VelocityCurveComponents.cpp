@@ -8,8 +8,9 @@
   ==============================================================================
 */
 
+#include "Main.h"
 #include "VelocityCurveComponents.h"
-#include "ViewConstants.h"
+//#include "ViewConstants.h"
 
 /*
 ==============================================================================
@@ -73,7 +74,7 @@ void VelocityCurveBeam::paint(Graphics& g)
 	rectPath.lineTo(0, h - beamHeight);
 	rectPath.closeSubPath();
 
-	g.setColour(Colour(MAINWINDOWSELECTEDCOLOUR));
+	g.setColour(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWSELECTEDCOLOUR"]);
 	g.fillPath(rectPath);
 }
 

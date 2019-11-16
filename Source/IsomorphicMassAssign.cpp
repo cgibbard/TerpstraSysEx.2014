@@ -168,7 +168,8 @@ void IsomorphicMassAssign::paint (Graphics& g)
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void IsomorphicMassAssign::resized()

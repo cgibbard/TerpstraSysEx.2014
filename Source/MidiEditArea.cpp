@@ -121,12 +121,13 @@ MidiEditArea::~MidiEditArea()
 void MidiEditArea::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
+	//[/UserPrePaint]
 
     g.fillAll (Colour (0xffbad0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void MidiEditArea::resized()

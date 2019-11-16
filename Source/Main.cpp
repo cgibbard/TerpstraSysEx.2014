@@ -30,6 +30,13 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	propertiesFile = new PropertiesFile(options);
 	jassert(propertiesFile != nullptr);
 
+	// Colour scheme
+	// Turquoise
+	colourScheme.set("MAINWINDOWBGCOLOUR", Colour(0xffbad0de));
+	colourScheme.set("MAINWINDOWSELECTEDCOLOUR", Colour(0x66ff5e00));
+	colourScheme.set("MAINWINDOWTEXTCOLOUR", Colours::black);
+	colourScheme.set("TERPSTRASELECTEDFLDLINECOLOUR", Colour(0xfff7990d));
+
 	// Recent files list
 	recentFiles.restoreFromString ( propertiesFile->getValue("RecentFiles") );
 	recentFiles.removeNonExistentFiles();
@@ -322,7 +329,7 @@ bool TerpstraSysExApplication::generalOptionsDialog()
 	launchOptions.content->setSize(480, 220);
 
 	launchOptions.dialogTitle = "General options";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = getColourScheme()["MAINWINDOWBGCOLOUR"];
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -345,7 +352,7 @@ bool TerpstraSysExApplication::noteOnOffVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Note on/off velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = getColourScheme()["MAINWINDOWBGCOLOUR"];
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -368,7 +375,7 @@ bool TerpstraSysExApplication::faderVelocityCurveDialog()
 	launchOptions.content->setSize(dlgWidth, dlgHeight);
 
 	launchOptions.dialogTitle = "Fader velocity curve";
-	launchOptions.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	launchOptions.dialogBackgroundColour = getColourScheme()["MAINWINDOWBGCOLOUR"];
 	launchOptions.escapeKeyTriggersCloseButton = true;
 	launchOptions.useNativeTitleBar = false;
 	launchOptions.resizable = true;
@@ -495,7 +502,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.content->setSize(area.getWidth(), area.getHeight());
 
 	options.dialogTitle = "About TerpstraSysEx";
-	options.dialogBackgroundColour = Colour(MAINWINDOWBGCOLOUR);
+	options.dialogBackgroundColour = getColourScheme()["MAINWINDOWBGCOLOUR"];
 	options.escapeKeyTriggersCloseButton = true;
 	options.useNativeTitleBar = false;
 	options.resizable = true;

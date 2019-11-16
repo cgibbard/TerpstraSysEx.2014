@@ -44,6 +44,7 @@ public:
 	}
 
 	PropertiesFile* getPropertiesFile() { return propertiesFile; }
+	HashMap<String, Colour>& getColourScheme() { return colourScheme; }
 	RecentlyOpenedFilesList& getRecentFileList() { return recentFiles; }
 	TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
 	TerpstraSysExMainMenuModel* getMainMenu() { return menuModel; }
@@ -86,7 +87,7 @@ public:
 	{
 	public:
 		MainWindow() : DocumentWindow("Terpstra Keyboard SysEx Utility",
-			Colour(MAINWINDOWBGCOLOUR),
+			getApp().getColourScheme()["MAINWINDOWBGCOLOUR"],
 			DocumentWindow::allButtons)
 		{
 			setContentOwned(new MainContentComponent(), true);
@@ -124,6 +125,8 @@ private:
 	ScopedPointer<TerpstraSysExMainMenuModel> menuModel;
 	TooltipWindow				tooltipWindow;
 	bool						hasChangesToSave;
+	//HashMap<String, juce::uint32>	colourScheme;
+	HashMap<String, Colour>	colourScheme;
 
 	PropertiesFile*				propertiesFile;
 	File						currentFile;

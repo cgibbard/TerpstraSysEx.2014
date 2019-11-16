@@ -18,7 +18,8 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "ViewConstants.h"
+//#include "ViewConstants.h"
+#include "Main.h"
 //[/Headers]
 
 #include "MacroButtonsWindow.h"
@@ -66,6 +67,8 @@ MacroButtonsWindow::MacroButtonsWindow ()
 
 
     //[Constructor] You can add your own custom stuff here..
+
+
 	btnEnableMacroButtons->setToggleState(true, juce::NotificationType::sendNotification);
     //[/Constructor]
 }
@@ -102,7 +105,8 @@ void MacroButtonsWindow::paint (Graphics& g)
                                RectanglePlacement::stretchToFit, 1.000f);
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void MacroButtonsWindow::resized()

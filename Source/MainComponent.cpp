@@ -175,10 +175,10 @@ void MainContentComponent::handleIncomingMidiMessage(MidiInput* source, const Mi
 
 void MainContentComponent::paint (Graphics& g)
 {
-	g.fillAll(Colour(MAINWINDOWBGCOLOUR));
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
 
     g.setFont (Font (16.0f));
-    g.setColour (Colours::black);
+	g.setColour(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
 }
 
 void MainContentComponent::resized()
