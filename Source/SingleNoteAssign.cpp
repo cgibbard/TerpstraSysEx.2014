@@ -110,6 +110,12 @@ SingleNoteAssign::SingleNoteAssign ()
 
 
     //[Constructor] You can add your own custom stuff here..
+
+	// Colour scheme
+	editInstructionText->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	editInstructionText->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+
 	for (int i = 0; i <= 127; i++)
 	{
 		noteBox->addItem(String(i), i + 1);
@@ -124,7 +130,6 @@ SingleNoteAssign::SingleNoteAssign ()
 	setColourToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeToggleButton->setToggleState(true, juce::NotificationType::sendNotification);
 	keyTypeCombo->setSelectedId(TerpstraKey::noteOnNoteOff);
-	//colourCombo->setTextFieldToColour(XXX);
     //[/Constructor]
 }
 

@@ -89,13 +89,20 @@ MidiEditArea::MidiEditArea ()
     //[UserPreSize]
 	cbMidiInput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiInputList(), 1);
 	cbMidiOutput->addItemList(TerpstraSysExApplication::getApp().getMidiDriver().getMidiOutputList(), 1);
-    //[/UserPreSize]
+	//[/UserPreSize]
 
     setSize (380, 130);
 
 
     //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+
+	// Colour scheme
+	lblMidiInput->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblMidiInput->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+	lblMidiOutput->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblMidiOutput->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+	//[/Constructor]
 }
 
 MidiEditArea::~MidiEditArea()

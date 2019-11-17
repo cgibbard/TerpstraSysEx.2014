@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Main.h"
 //[/Headers]
 
 #include "ColourEditComponent.h"
@@ -140,7 +141,8 @@ void ColourEditComponent::paint (Graphics& g)
     g.fillAll (Colour (0xffb8d0de));
 
     //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	g.fillAll(TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWBGCOLOUR"]);
+	//[/UserPaint]
 }
 
 void ColourEditComponent::resized()

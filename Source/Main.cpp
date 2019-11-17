@@ -32,9 +32,17 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	// Colour scheme
 	// Turquoise
-	colourScheme.set("MAINWINDOWBGCOLOUR", Colour(0xffbad0de));
+	//colourScheme.set("MAINWINDOWBGCOLOUR", Colour(0xffbad0de));
+	//colourScheme.set("MAINWINDOWSELECTEDCOLOUR", Colour(0x66ff5e00));
+	//colourScheme.set("MAINWINDOWTEXTCOLOUR", Colours::black);
+	//colourScheme.set("LABELBGCOLOUR", Colour(0x00000000));
+	//colourScheme.set("TERPSTRASELECTEDFLDLINECOLOUR", Colour(0xfff7990d));
+
+	// Dark
+	colourScheme.set("MAINWINDOWBGCOLOUR", Colour(0xff2f2f2f));
 	colourScheme.set("MAINWINDOWSELECTEDCOLOUR", Colour(0x66ff5e00));
-	colourScheme.set("MAINWINDOWTEXTCOLOUR", Colours::black);
+	colourScheme.set("MAINWINDOWTEXTCOLOUR", Colour(0xffd7d9da));
+	colourScheme.set("LABELBGCOLOUR", Colour(0x00000000));
 	colourScheme.set("TERPSTRASELECTEDFLDLINECOLOUR", Colour(0xfff7990d));
 
 	// Recent files list

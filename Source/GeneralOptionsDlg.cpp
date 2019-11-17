@@ -103,12 +103,28 @@ GeneralOptionsDlg::GeneralOptionsDlg ()
 
     //[UserPreSize]
 	txtExprCtrlSensivity->addListener(this);
-    //[/UserPreSize]
+	//[/UserPreSize]
 
     setSize (480, 220);
 
 
     //[Constructor] You can add your own custom stuff here..
+
+	// Colour scheme
+	labelExprContrSensivity->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	labelExprContrSensivity->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+	lblInvFootCtrl->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblInvFootCtrl->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+	lblLightOnKeyStroke->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblLightOnKeyStroke->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+	lblColourInactiveMacroButton->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblColourInactiveMacroButton->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
+
+	lblColourActiveMacroButton->setColour(TextEditor::textColourId, TerpstraSysExApplication::getApp().getColourScheme()["MAINWINDOWTEXTCOLOUR"]);
+	lblColourActiveMacroButton->setColour(TextEditor::backgroundColourId, TerpstraSysExApplication::getApp().getColourScheme()["LABELBGCOLOUR"]);
 
 	// Set values according to the properties files
 	restoreStateFromPropertiesFile(TerpstraSysExApplication::getApp().getPropertiesFile());
