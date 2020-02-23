@@ -50,7 +50,7 @@ static Array<int> getCoprimes(int numIn, bool onlyFirstHalf=false)
 {
 	Array<int> coprimes = { 1 };
 	int div, mod;
-	int max = onlyFirstHalf ? (numIn / 2 + 1) : numIn - 1;
+	int max = onlyFirstHalf ? (numIn / 2 + 1) : numIn;
 	for (int i = 2; i < max; i++)
 	{
 		div = numIn;
@@ -69,7 +69,6 @@ static Array<int> getCoprimes(int numIn, bool onlyFirstHalf=false)
 		}
 	}
 
-	coprimes.add(numIn - 1);
 	return coprimes;
 }
 
@@ -89,6 +88,8 @@ static Array<int> getContinuedFraction(double fractionIn, int maxDepth = CF_MAXD
 		nextF = f - cf[i];
 		if (nextF > round0Thresh)
 			f = 1.0 / nextF;
+		else
+			break;
 	}
 
 	return cf;
