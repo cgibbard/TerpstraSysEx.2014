@@ -69,7 +69,9 @@ void TerpstraKeyEdit::paint(Graphics& g)
 {
 	TerpstraKey currentValue = getValue();
 
-	juce::Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
+	// Selected or not: color and thickness of the line
+	float lineWidth = isSelected ? TERPSTRASELECTEDKEYFLDLINEWIDTH : TERPSTRASINGLEKEYFLDLINEWIDTH;
+	Colour lineColor = findColour(isSelected ? selectedKeyOutlineId : outlineColourId);
 
 	// Color: empty or the parametrized color
 	Colour bgColour = findColour(backgroundColourId).overlaidWith(Colour(currentValue.colour)
@@ -98,7 +100,7 @@ void TerpstraKeyEdit::paint(Graphics& g)
 
 	// Draw line
 	g.setColour(lineColor);
-	g.strokePath(hexPath, PathStrokeType(getLineWidth()));
+	g.strokePath(hexPath, PathStrokeType(lineWidth));
 
 	// Something parametrized or not?
 	if (currentValue.isEmpty())
@@ -118,15 +120,15 @@ void TerpstraKeyEdit::resized()
 	// Both values are set in calling function when constructing this, are supposed to be TERPSTRASINGLEKEYFLDSIZE
 	float w = this->getWidth();
 	float h = this->getHeight();
-    auto lineWidth = getLineWidth();
 
+	// Draw hexagon
 	hexPath.clear();
-	hexPath.startNewSubPath(w / 2.0f, lineWidth);
-	hexPath.lineTo(w - lineWidth, h / 4.0f);
-	hexPath.lineTo(w - lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(w / 2.0f, h - lineWidth);
-	hexPath.lineTo(lineWidth, 3.0f * h / 4.0f);
-	hexPath.lineTo(lineWidth, h / 4.0f);
+	hexPath.startNewSubPath(w / 2.0f, 0);
+	hexPath.lineTo(w, h / 4.0f);
+	hexPath.lineTo(w, 3.0f * h / 4.0f);
+	hexPath.lineTo(w / 2.0f, h);
+	hexPath.lineTo(0, 3.0f * h / 4.0f);
+	hexPath.lineTo(0, h / 4.0f);
 	hexPath.closeSubPath();
 
 	// Rotate slightly counterclockwise around the center
@@ -135,45 +137,9 @@ void TerpstraKeyEdit::resized()
 	transform = transform.translated(w / 2.0f, h / 2.0f);
 
 	hexPath.applyTransform(transform);
-	hexPath.scaleToFit(lineWidth, lineWidth, w - lineWidth, h - lineWidth, true);
-}
-
-/*
-==============================================================================
-TerpstraKeySetEdit class
-==============================================================================
-*/
-
-TerpstraKeySetEdit::TerpstraKeySetEdit()
-{
-	Image imgUnselected = ImageCache::getFromMemory(BinaryData::OctaveGraphic_png, BinaryData::OctaveGraphic_pngSize);
-	Image imgSelected = ImageCache::getFromMemory(BinaryData::OctaveWithSelection_png, BinaryData::OctaveWithSelection_pngSize);
-
-	setImages(true, true, true,
-		imgUnselected, 0.5f, Colours::transparentBlack,
-		imgUnselected, 0.6f, Colours::transparentBlack,
-		imgSelected, 0.9f, Colours::transparentBlack,
-		0.5f);
-
-	setClickingTogglesState(true);
-}
-
-TerpstraKeySetEdit::~TerpstraKeySetEdit()
-{
-
-}
-
-void TerpstraKeySetEdit::mouseDown(const MouseEvent& e)
-{
-	ImageButton::mouseDown(e);
-
-	// If right mouse click: popup menu
-	if (e.mods.isRightButtonDown())
-	{
-		PopupMenu menu;
-		TerpstraSysExApplication::getApp().getMainMenu()->createEditMenu(menu);
-		menu.show();
-	}
+	hexPath.scaleToFit(
+                    TERPSTRASINGLEKEYFLDMARGIN, TERPSTRASINGLEKEYFLDMARGIN,
+                    w - 2*TERPSTRASINGLEKEYFLDMARGIN, h - 2*TERPSTRASINGLEKEYFLDMARGIN, true);
 }
 
 /*
