@@ -25,8 +25,7 @@
             file="Source/ScaleStructure.cpp"/>
       <FILE id="ZiHD7c" name="ScaleStructure.h" compile="0" resource="0"
             file="Source/ScaleStructure.h"/>
-      <FILE id="bYyzp9" name="ScaleMath.cpp" compile="1" resource="0" file="Source/ScaleMath.cpp"/>
-      <FILE id="GPso7h" name="ScaleMath.h" compile="0" resource="0" file="Source/ScaleMath.h"/>
+      <FILE id="GPso7h" name="ScaleMath.h" compile="1" resource="0" file="Source/ScaleMath.h"/>
       <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
             file="Source/PlayVirtualKeyboard.cpp"/>
       <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"

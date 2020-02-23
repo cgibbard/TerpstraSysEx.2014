@@ -116,7 +116,7 @@ void ScaleStructure::calculateProperties()
 	keyboardTypes.clear();
 	pgCoordinates.clear();
 
-	Array<int> cf = getContinuedFraction(generator, period);
+	Array<int> cf = getContinuedFraction((double)generator / period);
 
 	// seed the sequence
 	Point<int> parent1 = Point<int>(-1 + cf[0], 1);
