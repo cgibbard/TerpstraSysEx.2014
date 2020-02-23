@@ -31,6 +31,11 @@ int ScaleStructure::getCoprimeGenerator(int index)
 	return coprimeGenerators[index];
 }
 
+int ScaleStructure::getPeriod()
+{
+	return period;
+}
+
 int ScaleStructure::getGenerator()
 {
 	return generator;
@@ -107,9 +112,12 @@ void ScaleStructure::setGenerator(int generatorIn)
 
 void ScaleStructure::setSize(int indexOfSize)
 {
-	currentScaleSize = scaleSizes[indexOfSize];
+	currentScaleSize = indexOfSize;
 }
 
+/*
+	Based on Erv Wilson's Scale Tree / Gral Keyboard algorithm.
+*/
 void ScaleStructure::calculateProperties()
 {
 	scaleSizes.clear();
@@ -122,10 +130,6 @@ void ScaleStructure::calculateProperties()
 	Point<int> parent1 = Point<int>(-1 + cf[0], 1);
 	Point<int> parent2 = Point<int>(1, 0);
 	Point<int> gp = Point<int>(cf[0], 1);
-
-	scaleSizes.add(gp.y);
-	keyboardTypes.add(gp);
-	pgCoordinates.add(Array<Point<int>>({parent1, parent2}));
 
 	Array<Point<int>> packet = {gp, parent2, gp + parent2}; // makes for cleaner code
 
@@ -145,13 +149,9 @@ void ScaleStructure::calculateProperties()
 			// if previous continued fraction index is even,
 			// set parent2 to previous result
 			if (i % 2 == 0)
-			{
 				parent1 = gp;
-			}
 			else // if odd, set parent1 to previous result
-			{
 				parent2 = gp;
-			}
 
 			packet = { parent1, parent2, parent1 + parent2 };
 		}
@@ -161,30 +161,39 @@ void ScaleStructure::calculateProperties()
 	calculateSizeVectors();
 }
 
+/*
+	This algorithm can be modified to produce cents values of L & s step sizes of MOS scales.
+*/
 void ScaleStructure::calculateSizeVectors()
 {
 	Point<int> stepSizesOut;
 	Point<int> periodCoordinate;
 	Point<int> generatorCoordinate;
 
-	int gMult, pMult, lcmX, lcmY;
-
 	for (int i = 0; i < scaleSizes.size(); i++)
 	{
-		periodCoordinate = pgCoordinates[currentScaleSize][0];
-		generatorCoordinate = pgCoordinates[currentScaleSize][1];
+		generatorCoordinate = Point<int>(pgCoordinates[i][0].x, pgCoordinates[i][1].x);
+		periodCoordinate = Point<int>(pgCoordinates[i][0].y, pgCoordinates[i][1].y);
 
 		// find horiztonal step size (X)
-		lcmY = getLCM(periodCoordinate.y, generatorCoordinate.y);
-		gMult = (lcmY / generatorCoordinate.y) * generator;
-		pMult = (lcmY / periodCoordinate.y) * period;
-		stepSizesOut.setX(jmax(pMult, gMult) - jmin(pMult, gMult));
+		if (periodCoordinate.y == generatorCoordinate.y)
+			stepSizesOut.setX(period - generator);
+		else if (periodCoordinate.y == 0)
+			stepSizesOut.setX(period);
+		else if (generatorCoordinate.y == 0)
+			stepSizesOut.setX(generator);
+		else
+			stepSizesOut.setX(abs(period * generatorCoordinate.y - generator * periodCoordinate.y));
 
 		// find upward right step size (Y)
-		lcmX = getLCM(periodCoordinate.x, generatorCoordinate.x);
-		gMult = (lcmX / generatorCoordinate.x) * generator;
-		pMult = (lcmX / periodCoordinate.x) * period;
-		stepSizesOut.setY(jmax(pMult, gMult) - jmin(pMult, gMult));
+		if (periodCoordinate.x == generatorCoordinate.x)
+			stepSizesOut.setY(period - generator);
+		else if (periodCoordinate.x == 0)
+			stepSizesOut.setX(period);
+		else if (generatorCoordinate.y == 0)
+			stepSizesOut.setX(generator);
+		else
+			stepSizesOut.setY(abs(period * generatorCoordinate.x - generator * periodCoordinate.x));
 
 		stepSizes.add(stepSizesOut);
 	}

@@ -18,32 +18,12 @@ const double CF_ROUND0THRESH = 10e-8;
 	Returns the Euclidian version of modulo, where all results are positive
 	ie. -7 % 5 = 3 
 */
-
 static int modulo(int numIn, int mod)
 {
 	if (mod != 0)
 		return ((numIn % mod) + mod) % mod;
 
 	return 0;
-}
-
-// assumes input is positive
-static int getGCD(int num1, int num2)
-{
-	if (num1 == 0 || num2 == 0)
-		return num1 + num2;
-	else if (num1 == 1 || num2 == 1)
-		return 1;
-	else if (num1 == num2)
-		return num1;
-
-	return getGCD(num2, num1 % num2);
-}
-
-static int getLCM(int num1, int num2)
-{
-	long gcd = getGCD(num1, num2);
-	return (int)(jmax(num1, num2) / gcd * (jmin(num1, num2)));
 }
 
 static Array<int> getCoprimes(int numIn, bool onlyFirstHalf=false)
@@ -75,7 +55,6 @@ static Array<int> getCoprimes(int numIn, bool onlyFirstHalf=false)
 /*
 	Returns an array of digits representing the continued fraction expansion of a given proportion
 */
-
 static Array<int> getContinuedFraction(double fractionIn, int maxDepth = CF_MAXDEPTH, double round0Thresh = CF_ROUND0THRESH)
 {
 	Array<int> cf;

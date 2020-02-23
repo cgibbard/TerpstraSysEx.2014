@@ -30,7 +30,7 @@ class ScaleStructure
 	Array<Point<int>> stepSizes; // [(horizontal, right upward), ...]
 
 	// Properties for grouping scale degrees, based off of scale size chosen
-	int currentScaleSize; // Index of size
+	int currentScaleSize = -1; // Index of size
 	Array<int> sizeGroupings; // Each value refers to an index of scale sizes. Needs to add up to period.
 	Array<Array<int>> degreeGroupings; // The scale degrees within each group
 	Array<Colour> groupColours;
@@ -45,6 +45,7 @@ public:
 	Array<int> getCoprimeGenerators();
 	int getCoprimeGenerator(int index);
 	
+	int getPeriod();
 	int getGenerator();
 
 	Array<int> getScaleSizes();
