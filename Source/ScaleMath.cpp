@@ -80,7 +80,7 @@ static int getLCM(int num1, int num2)
 	return (int)(jmax(num1, num2) / gcd * (jmin(num1, num2)));
 }
 
-static Array<int> getCoprimes(int numIn, bool firstHalf = false)
+static Array<int> getCoprimes(int numIn, bool firstHalf)
 {
 	Array<int> coprimes = { 1 };
 	int div, mod;
@@ -107,11 +107,6 @@ static Array<int> getCoprimes(int numIn, bool firstHalf = false)
 	return coprimes;
 }
 
-static Array<int> getContinuedFraction(int numerator, int denominator, int maxDepth, double round0Thresh)
-{
-	return getContinuedFraction((double)numerator / denominator, maxDepth, round0Thresh);
-}
-
 static Array<int> getContinuedFraction(double fractionIn, int maxDepth, double round0Thresh)
 {
 	Array<int> cf;
@@ -127,4 +122,9 @@ static Array<int> getContinuedFraction(double fractionIn, int maxDepth, double r
 	}
 
 	return cf;
+}
+
+static Array<int> getContinuedFraction(int numerator, int denominator, int maxDepth, double round0Thresh)
+{
+	return getContinuedFraction((double)numerator / denominator, maxDepth, round0Thresh);
 }

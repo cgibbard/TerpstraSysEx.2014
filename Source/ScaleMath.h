@@ -33,5 +33,5 @@ static Array<int> getCoprimes(int numIn, bool firstHalf = false);
 /*
 	Returns an array of digits representing the continued fraction expansion of a given proportion
 */
-static Array<int> getContinuedFraction(int numerator, int denominator, int maxDepth = CF_MAXDEPTH, double round0Thresh = CF_ROUND0THRESH);
 static Array<int> getContinuedFraction(double fractionIn, int maxDepth = CF_MAXDEPTH, double round0Thresh = CF_ROUND0THRESH);
+static Array<int> getContinuedFraction(int numerator, int denominator, int maxDepth = CF_MAXDEPTH, double round0Thresh = CF_ROUND0THRESH);
