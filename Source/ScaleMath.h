@@ -26,6 +26,16 @@ static int modulo(int numIn, int mod)
 	return 0;
 }
 
+static Array<int> getGeneratorChain(int generator, int period)
+{
+	Array<int> chain;
+
+	for (int i = 0; i < period; i++)
+		chain.add(modulo(generator * i, period));
+
+	return chain;
+}
+
 static Array<int> getCoprimes(int numIn, bool onlyFirstHalf=false)
 {
 	Array<int> coprimes = { 1 };

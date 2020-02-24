@@ -29,8 +29,10 @@ class ScaleStructure
 	Array<Array<Point<int>>> pgCoordinates; // [[(coordinate of period, coordinate of generator)], ...]
 	Array<Point<int>> stepSizes; // [(horizontal, right upward), ...]
 
-	// Properties for grouping scale degrees, based off of scale size chosen
 	int currentScaleSize = -1; // Index of size
+
+	// Properties for grouping scale degrees, based off of scale size chosen
+	Array<int> generatorChain; // All degrees in the scale as a chain of generators
 	Array<int> sizeGroupings; // Each value refers to an index of scale sizes. Needs to add up to period.
 	Array<Array<int>> degreeGroupings; // The scale degrees within each group
 	Array<Colour> groupColours;
@@ -66,7 +68,12 @@ public:
 	void setGenerator(int generatorIn);
 	void setSize(int indexOfSize);
 
-	// TODO: Method for constructing size groupings
+	/*
+		Suggests a symmetrical grouping based on subsizes of the chosen scale & size
+	*/
+	void useSuggestedGroupings();
+
+	// TODO: Method for custom size groupings
 
 	void setGroupColour(int groupIndex, Colour colour);
 };

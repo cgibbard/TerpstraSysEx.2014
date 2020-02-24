@@ -115,6 +115,72 @@ void ScaleStructure::setSize(int indexOfSize)
 	currentScaleSize = indexOfSize;
 }
 
+void ScaleStructure::useSuggestedGroupings()
+{
+	sizeGroupings.clear();
+	
+	// Find grouping
+	sizeGroupings.add(currentScaleSize);
+
+	Array<int> sizesChosenAndLess = scaleSizes;
+	sizesChosenAndLess.removeRange(currentScaleSize + 1, scaleSizes.size());
+
+	int groupingSum = scaleSizes[sizeGroupings[0]];
+	int degreesRemaining = period - scaleSizes[sizeGroupings[0]];
+	int subSizeInd = currentScaleSize - 1;
+	int nextSubSize = scaleSizes[subSizeInd];
+	int quotient = degreesRemaining / nextSubSize;
+	int nextRemainder = degreesRemaining - (quotient * nextSubSize);
+
+	// Needs testing
+	while (groupingSum < period)
+	{
+		while (nextRemainder % 2 == 1 && !sizesChosenAndLess.contains(nextRemainder))
+		{
+			// Find new subsize if not compatible
+			while (quotient < 1)
+			{
+				nextSubSize = scaleSizes[--subSizeInd];
+				quotient = degreesRemaining / nextSubSize;
+				nextRemainder = degreesRemaining - (quotient * nextSubSize);
+			}
+		}
+
+		for (int i = 0; i < quotient; i++)
+			sizeGroupings.add(subSizeInd);
+
+		groupingSum += quotient * nextSubSize;
+	}
+
+	// For now, just print a message if it's a bad grouping
+	if (groupingSum > period)
+		DBG("Grouping went a little overboard. It is " + String(groupingSum) + " when it should be " + String(period));
+
+	degreeGroupings.resize(sizeGroupings.size());
+
+	// Fill degree groups symmetrically
+
+	int indexForward = 0;
+	int indexBackwards = period - 1;
+
+	for (int t = 0; t < sizeGroupings.size(); t++)
+	{
+		for (int n = 0; n < scaleSizes[sizeGroupings[t]]; n++)
+		{
+			if (t % 2 == 0)
+			{
+				degreeGroupings.getReference(t).add(generatorChain[indexForward]);
+				indexForward++;
+			}
+			else
+			{
+				degreeGroupings.getReference(t).add(generatorChain[indexBackwards]);
+				indexBackwards--;
+			}
+		}
+	}
+}
+
 /*
 	Based on Erv Wilson's Scale Tree / Gral Keyboard algorithm.
 */
@@ -156,6 +222,8 @@ void ScaleStructure::calculateProperties()
 			packet = { parent1, parent2, parent1 + parent2 };
 		}
 	}
+
+	generatorChain = getGeneratorChain(generator, period);
 
 	// find step sizes
 	calculateSizeVectors();
