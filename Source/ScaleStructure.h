@@ -19,7 +19,7 @@
 class ScaleStructure
 {
 	int period;
-	int generator;
+	int generatorIndex = -1;
 
 	Array<int> coprimeGenerators; // Degrees that produce MOS scales
 	
@@ -28,21 +28,29 @@ class ScaleStructure
 	Array<Point<int>> keyboardTypes; // [(generator degree, scale size), ...]
 	Array<Array<Point<int>>> pgCoordinates; // [[(coordinate of period, coordinate of generator)], ...]
 	Array<Point<int>> stepSizes; // [(horizontal, right upward), ...]
+	Array<int> generatorChain; // All degrees in the scale as a chain of generators
 
-	int currentScaleSize = -1; // Index of size
+	int currentSizeIndex = -1; // Index of size
+	int generatorOffset = 0;
 
 	// Properties for grouping scale degrees, based off of scale size chosen
-	Array<int> generatorChain; // All degrees in the scale as a chain of generators
-	Array<int> sizeGroupings; // Each value refers to an index of scale sizes. Needs to add up to period.
-	Array<Array<int>> degreeGroupings; // The scale degrees within each group
+	Array<int> sizeGrouping; // Each value refers to an index of scale sizes. Needs to add up to period.
+	Array<Array<int>> degreeGrouping; // The scale degrees within each group
 	Array<Colour> groupColours;
 
+	// Calculates the necessary data after a period and generator are chosen
 	void calculateProperties();
-	void calculateSizeVectors();
+
+	// Calculates the step sizes that should be applied to the keyboard
+	void calculateStepSizes();
+
+	// Separates scale degrees based on the current sizeGrouping
+	void fillSymmetricDegreeGrouping();
 
 public:
 
-	ScaleStructure(int periodIn, int generatorIn=0);
+	ScaleStructure(int periodIn, int generatorIn=-1);
+	ScaleStructure(const ScaleStructure& scaleToCopy);
 
 	Array<int> getCoprimeGenerators();
 	int getCoprimeGenerator(int index);
@@ -64,16 +72,50 @@ public:
 	Point<int> getStepSizeVector(int indexOfSize);
 	Point<int> getCurrentStepSizes();
 
+	void resetPeriod(int periodIn);
 	void chooseCoprimeGenerator(int index);
-	void setGenerator(int generatorIn);
-	void setSize(int indexOfSize);
+	void setGeneratorIndex(int generatorIn);
+	void setSizeIndex(int indexOfSize);
+
+	/*	
+		Returns the index whose generator is closest to a perfect fifth
+	*/
+	int getSuggestedGeneratorIndex();
 
 	/*
-		Suggests a symmetrical grouping based on subsizes of the chosen scale & size
+		Returns an index whose size is closest to 7
 	*/
-	void useSuggestedGroupings();
+	int getSuggestedSizeIndex();
+
+	/*
+		Returns an index closest to prefferedSize, with an additional size option
+	*/
+	int getPrefferedSizeIndex(int prefferedSize, bool preferLarger = true);
+
+	/*
+		Returns a symmetrical size grouping that tries to use as many of the 
+		main scale size, and iterates to each smaller size until full.
+	*/
+	Array<int> getNestedSizeGrouping();
+
+	/*
+		Returns a symmetrical size grouping that with each iteration, looks for 
+		the best combination of the current size plus the next smaller size.
+	*/
+	Array<int> getComplimentarySizeGrouping();
+
+	/*
+		Sets sizeGrouping to input if valid, then fills degrees
+	*/
+	void applyGrouping(Array<int> sizeGroupingIn);
+
+	/*
+		Employs a "best out of two" procedure with the above two 
+		size grouping algorithms, then applies it to the current structure
+		TODO: After preset implementation, allow this to override algorithmic groupings
+		with predefined ones if they exist
+	*/
+	void applySuggestedSizeGrouping();
 
 	// TODO: Method for custom size groupings
-
-	void setGroupColour(int groupIndex, Colour colour);
 };
