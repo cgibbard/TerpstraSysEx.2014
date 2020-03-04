@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -36,6 +36,10 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 	incrMidiNotesMapping.reset(new IncrMidiNotesMapping());
 	addAndMakeVisible(incrMidiNotesMapping.get());
 	incrMidiNotesMapping->setVisible(false);
+
+	mosMapping.reset(new MOSMapping());
+	addAndMakeVisible(mosMapping.get());
+	mosMapping->setVisible(false);
 
 	mappingLogic = nullptr;
     //[/Constructor_pre]
@@ -133,6 +137,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     cbMappingStyle->setTextWhenNothingSelected (String());
     cbMappingStyle->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     cbMappingStyle->addItem (TRANS("MIDI notes, increasing order"), 1);
+    cbMappingStyle->addItem (TRANS("MOS mode, full multichannel"), 2);
     cbMappingStyle->addListener (this);
 
     cbMappingStyle->setBounds (105, 31, 296, 24);
@@ -158,7 +163,7 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
     //[Constructor] You can add your own custom stuff here..
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
-
+	// TODO: add listener for mos mode
 
 	// Default selection
 	// Todo: read from user settings
@@ -171,6 +176,7 @@ IsomorphicMassAssign::~IsomorphicMassAssign()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	incrMidiNotesMapping = nullptr;
+	mosMapping = nullptr;
     //[/Destructor_pre]
 
     startingPointBox = nullptr;
@@ -229,9 +235,20 @@ void IsomorphicMassAssign::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 		// Show sub window corresponding to selected mapping style. Currently there is only one
 		if (mappingStyle == 0)
+		{
+			mosMapping->setVisible(false);
 			incrMidiNotesMapping->setVisible(true);
-		else
+		}
+		else if (mappingStyle == 1)
+		{
 			incrMidiNotesMapping->setVisible(false);
+			mosMapping->setVisible(true);
+		}
+		else
+		{
+			incrMidiNotesMapping->setVisible(false);
+			mosMapping->setVisible(false);
+		}
         //[/UserComboBoxCode_cbMappingStyle]
     }
 
@@ -464,8 +481,8 @@ BEGIN_JUCER_METADATA
                   virtualName="" explicitFocusOrder="0" pos="0 8 416 152" title="Mapping"/>
   <COMBOBOX name="cbMappingStyle" id="a7825b65cfb78392" memberName="cbMappingStyle"
             virtualName="" explicitFocusOrder="0" pos="105 31 296 24" editable="0"
-            layout="33" items="MIDI notes, increasing order" textWhenNonSelected=""
-            textWhenNoItems="(no choices)"/>
+            layout="33" items="MIDI notes, increasing order&#10;MOS mode, full multichannel"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="labelMappingStyle" id="d77d8a4b80130afc" memberName="labelMappingStyle"
          virtualName="" explicitFocusOrder="0" pos="12 32 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Style:" editableSingleClick="0" editableDoubleClick="0"

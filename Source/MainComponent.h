@@ -20,6 +20,7 @@
 #include "TerpstraMidiDriver.h"
 #include "MidiEditArea.h"
 #include "NoteEditArea.h"
+#include "ScaleStructure.h"
 
 
 //==============================================================================
@@ -95,6 +96,9 @@ private:
 
 	// Buffer for copy/paste of sub board data
 	TerpstraKeys		copiedSubBoardData;
+	
+	// Scale and colour pattern settings
+	ScaleStructure      scaleStructure;
 };
 
 

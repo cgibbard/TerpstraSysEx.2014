@@ -15,7 +15,7 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-	: currentSetSelection(-1), currentSingleKeySelection(-1), copiedSubBoardData()
+	: currentSetSelection(-1), currentSingleKeySelection(-1), copiedSubBoardData(), scaleStructure(12, 2)
 {
 	// Key set fields
 	for (int i = 0; i < NUMBEROFBOARDS; i++)

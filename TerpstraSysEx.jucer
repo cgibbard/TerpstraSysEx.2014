@@ -17,15 +17,15 @@
             file="BinaryData/TerpstraIcon.png"/>
     </GROUP>
     <GROUP id="{A73AEEF5-637C-D160-EE91-9A6158A5A60C}" name="Source">
+      <FILE id="XgFQlZ" name="ScaleMath.h" compile="0" resource="0" file="Source/ScaleMath.h"/>
+      <FILE id="qrPltL" name="ScaleStructure.cpp" compile="1" resource="0"
+            file="Source/ScaleStructure.cpp"/>
+      <FILE id="VYSZry" name="ScaleStructure.h" compile="0" resource="0"
+            file="Source/ScaleStructure.h"/>
       <FILE id="zObTAR" name="OctaveBoardComponent.cpp" compile="1" resource="0"
             file="Source/OctaveBoardComponent.cpp"/>
       <FILE id="Pe60oV" name="OctaveBoardComponent.h" compile="0" resource="0"
             file="Source/OctaveBoardComponent.h"/>
-      <FILE id="SoBEkp" name="ScaleStructure.cpp" compile="1" resource="0"
-            file="Source/ScaleStructure.cpp"/>
-      <FILE id="ZiHD7c" name="ScaleStructure.h" compile="0" resource="0"
-            file="Source/ScaleStructure.h"/>
-      <FILE id="GPso7h" name="ScaleMath.h" compile="1" resource="0" file="Source/ScaleMath.h"/>
       <FILE id="NjnAyz" name="PlayVirtualKeyboard.cpp" compile="1" resource="0"
             file="Source/PlayVirtualKeyboard.cpp"/>
       <FILE id="VIUaU0" name="PlayVirtualKeyboard.h" compile="0" resource="0"
@@ -74,6 +74,8 @@
       <FILE id="OjtwC9" name="MappingLogic.cpp" compile="1" resource="0"
             file="Source/MappingLogic.cpp"/>
       <FILE id="QrQZFP" name="MappingLogic.h" compile="0" resource="0" file="Source/MappingLogic.h"/>
+      <FILE id="rd7vQa" name="MOSMapping.cpp" compile="1" resource="0" file="Source/MOSMapping.cpp"/>
+      <FILE id="GRKfet" name="MOSMapping.h" compile="0" resource="0" file="Source/MOSMapping.h"/>
       <FILE id="Q7w4Rw" name="IncrMidiNotesMapping.cpp" compile="1" resource="0"
             file="Source/IncrMidiNotesMapping.cpp"/>
       <FILE id="JnIXBl" name="IncrMidiNotesMapping.h" compile="0" resource="0"

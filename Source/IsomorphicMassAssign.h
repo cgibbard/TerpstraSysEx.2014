@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 5.4.5
+  Created with Projucer version: 5.4.7
 
   ------------------------------------------------------------------------------
 
@@ -23,6 +23,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MappingLogic.h"
 #include "IncrMidiNotesMapping.h"
+#include "MOSMapping.h"
 #include "BoardGeometry.h"
 //[/Headers]
 
@@ -43,7 +44,7 @@ class IsomorphicMassAssign  : public Component,
 public:
     //==============================================================================
     IsomorphicMassAssign ();
-    ~IsomorphicMassAssign();
+    ~IsomorphicMassAssign() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -79,6 +80,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<IncrMidiNotesMapping>	incrMidiNotesMapping;
+	std::unique_ptr<MOSMapping>				mosMapping;
 
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;
