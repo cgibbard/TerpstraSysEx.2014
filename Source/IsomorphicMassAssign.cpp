@@ -212,6 +212,7 @@ void IsomorphicMassAssign::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 	incrMidiNotesMapping->setBounds(16, MAPPINGSUBWINTOP, EDITSUBWINWIDTH, MAPPINGSUBWINHEIGHT);
+	mosMapping->setBounds(16, MAPPINGSUBWINTOP, EDITSUBWINWIDTH, MAPPINGSUBWINHEIGHT);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..

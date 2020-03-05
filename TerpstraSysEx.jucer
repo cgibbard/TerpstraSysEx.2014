@@ -74,6 +74,10 @@
       <FILE id="OjtwC9" name="MappingLogic.cpp" compile="1" resource="0"
             file="Source/MappingLogic.cpp"/>
       <FILE id="QrQZFP" name="MappingLogic.h" compile="0" resource="0" file="Source/MappingLogic.h"/>
+      <FILE id="zFDwi9" name="AdvancedMOSDialog.cpp" compile="1" resource="0"
+            file="Source/AdvancedMOSDialog.cpp"/>
+      <FILE id="FH9TsF" name="AdvancedMOSDialog.h" compile="0" resource="0"
+            file="Source/AdvancedMOSDialog.h"/>
       <FILE id="rd7vQa" name="MOSMapping.cpp" compile="1" resource="0" file="Source/MOSMapping.cpp"/>
       <FILE id="GRKfet" name="MOSMapping.h" compile="0" resource="0" file="Source/MOSMapping.h"/>
       <FILE id="Q7w4Rw" name="IncrMidiNotesMapping.cpp" compile="1" resource="0"

@@ -20,7 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include <JuceHeader.h>
+#include "../JuceLibraryCode/JuceHeader.h"
 //[/Headers]
 
 
@@ -33,15 +33,15 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MOSMapping  : public Component,
-                    public Button::Listener,
-                    public Slider::Listener,
-                    public ComboBox::Listener
+class AdvancedMOSDialog  : public Component,
+                           public Slider::Listener,
+                           public ComboBox::Listener,
+                           public Button::Listener
 {
 public:
     //==============================================================================
-    MOSMapping ();
-    ~MOSMapping() override;
+    AdvancedMOSDialog ();
+    ~AdvancedMOSDialog() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -49,9 +49,9 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
@@ -60,6 +60,12 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<Label> rootNoteLabel;
+    std::unique_ptr<Label> rootMidiChnLabel;
+    std::unique_ptr<Label> periodPerOctLabel;
+    std::unique_ptr<Slider> rootNoteSlider;
+    std::unique_ptr<Slider> rootChannelSlider;
+    std::unique_ptr<ComboBox> periodPerOctaveBox;
     std::unique_ptr<Label> periodLabel;
     std::unique_ptr<Label> generatorLabel;
     std::unique_ptr<Label> sizeLabel;
@@ -74,7 +80,7 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MOSMapping)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AdvancedMOSDialog)
 };
 
 //[EndFile] You can add extra defines here...
