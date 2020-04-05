@@ -50,9 +50,14 @@ int ScaleStructure::getPeriod()
 	return period;
 }
 
-int ScaleStructure::getGenerator()
+int ScaleStructure::getGeneratorIndex()
 {
 	return generatorIndex;
+}
+
+int ScaleStructure::getGeneratorOffset()
+{
+	return generatorOffset;
 }
 
 Array<int> ScaleStructure::getScaleSizes()
@@ -63,6 +68,11 @@ Array<int> ScaleStructure::getScaleSizes()
 int ScaleStructure::getScaleSize(int index)
 {
 	return scaleSizes[index];
+}
+
+int ScaleStructure::getCurrentSizeIndex()
+{
+	return currentSizeIndex;
 }
 
 int ScaleStructure::getCurrentScaleSize()
@@ -140,6 +150,11 @@ void ScaleStructure::setGeneratorIndex(int generatorIn)
 void ScaleStructure::setSizeIndex(int indexOfSize)
 {
 	currentSizeIndex = indexOfSize;
+}
+
+void ScaleStructure::setGeneratorOffset(int offsetIn)
+{
+	generatorOffset = offsetIn;
 }
 
 /*

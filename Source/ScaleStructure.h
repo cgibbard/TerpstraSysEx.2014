@@ -56,10 +56,12 @@ public:
 	int getCoprimeGenerator(int index);
 	
 	int getPeriod();
-	int getGenerator();
+	int getGeneratorIndex();
+	int getGeneratorOffset();
 
 	Array<int> getScaleSizes();
 	int getScaleSize(int index);
+	int getCurrentSizeIndex();
 	int getCurrentScaleSize();
 
 	Array<Point<int>> getKeyboardTypes();
@@ -76,6 +78,7 @@ public:
 	void chooseCoprimeGenerator(int index);
 	void setGeneratorIndex(int generatorIn);
 	void setSizeIndex(int indexOfSize);
+	void setGeneratorOffset(int offsetIn);
 
 	/*	
 		Returns the index whose generator is closest to a perfect fifth
