@@ -282,15 +282,18 @@ void AdvancedMOSDialog::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == periodSlider.get())
     {
         //[UserSliderCode_periodSlider] -- add your slider handling code here..
+		periodChanged(sliderThatWasMoved->getValue());
         //[/UserSliderCode_periodSlider]
     }
     else if (sliderThatWasMoved == generatorOffsetSlider.get())
     {
         //[UserSliderCode_generatorOffsetSlider] -- add your slider handling code here..
+		
         //[/UserSliderCode_generatorOffsetSlider]
     }
 
     //[UsersliderValueChanged_Post]
+	sendScaleData();
     //[/UsersliderValueChanged_Post]
 }
 
@@ -307,15 +310,18 @@ void AdvancedMOSDialog::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     else if (comboBoxThatHasChanged == generatorBox.get())
     {
         //[UserComboBoxCode_generatorBox] -- add your combo box handling code here..
+		generatorChanged(comboBoxThatHasChanged->getSelectedId());
         //[/UserComboBoxCode_generatorBox]
     }
     else if (comboBoxThatHasChanged == sizeBox.get())
     {
         //[UserComboBoxCode_sizeBox] -- add your combo box handling code here..
+		scaleSizeChanged(comboBoxThatHasChanged->getSelectedId());
         //[/UserComboBoxCode_sizeBox]
     }
 
     //[UsercomboBoxChanged_Post]
+	sendScaleData();
     //[/UsercomboBoxChanged_Post]
 }
 
@@ -341,12 +347,94 @@ void AdvancedMOSDialog::buttonClicked (Button* buttonThatWasClicked)
     }
 
     //[UserbuttonClicked_Post]
+	sendScaleData();
     //[/UserbuttonClicked_Post]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void AdvancedMOSDialog::setScaleStructure(ScaleStructure* structureIn)
+{
+	scaleStructure = structureIn;
+
+	if (scaleStructure != nullptr)
+	{
+		scaleStructure->setGeneratorIndex(scaleStructure->getSuggestedGeneratorIndex());
+		scaleStructure->setSizeIndex(scaleStructure->getSuggestedSizeIndex());
+		scaleStructure->applySuggestedSizeGrouping();
+
+		updateAllControls();
+	}
+}
+
+void AdvancedMOSDialog::updateAllControls()
+{
+	periodSlider->setValue(scaleStructure->getPeriod(), dontSendNotification);
+	
+	generatorBox->clear();
+	int i = 0;
+	for (auto generator : scaleStructure->getCoprimeGenerators())
+	{
+		generatorBox->addItem(String(generator), ++i);
+	}
+	generatorBox->setSelectedId(scaleStructure->getGeneratorIndex() + 1, dontSendNotification);
+
+	sizeBox->clear();
+	i = 0;
+	for (auto size : scaleStructure->getScaleSizes())
+	{
+		sizeBox->addItem(String(size), ++i);
+	}
+	sizeBox->setSelectedId(scaleStructure->getCurrentSizeIndex() + 1, dontSendNotification);
+
+	generatorOffsetSlider->setRange(-scaleStructure->getCurrentScaleSize(), 0, 1);
+	generatorOffsetSlider->setValue(scaleStructure->getGeneratorOffset(), dontSendNotification);
+
+	// TODO: Fraction periods / periods per octave
+}
+
+void AdvancedMOSDialog::periodChanged(int newPeriod)
+{
+	scaleStructure->resetPeriod(newPeriod);
+
+	generatorBox->clear();
+	int i = 0;
+	for (auto generator : scaleStructure->getCoprimeGenerators())
+	{
+		generatorBox->addItem(String(generator), ++i);
+	}
+
+	// Auto-select suggested generator
+	generatorBox->setSelectedId(scaleStructure->getSuggestedGeneratorIndex() + 1);
+}
+
+void AdvancedMOSDialog::generatorChanged(int newGeneratorIndex)
+{
+	scaleStructure->setGeneratorIndex(newGeneratorIndex - 1);
+
+	sizeBox->clear();
+	int i = 0;
+	for (auto size : scaleStructure->getScaleSizes())
+	{
+		sizeBox->addItem(String(size), ++i);
+	}
+
+	// Auto-select suggested scale size
+	sizeBox->setSelectedId(scaleStructure->getSuggestedSizeIndex() + 1);
+}
+
+void AdvancedMOSDialog::scaleSizeChanged(int newSizeIndex)
+{
+	generatorOffsetSlider->setRange(-scaleStructure->getScaleSize(newSizeIndex), 0, 1);
+}
+
+void AdvancedMOSDialog::sendScaleData()
+{
+
+}
+
 //[/MiscUserCode]
 
 

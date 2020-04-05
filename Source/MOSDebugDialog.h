@@ -47,6 +47,16 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	
+	void setScaleStructure(ScaleStructure* structureIn);
+	void updateAllControls();
+
+	void periodChanged(int newPeriod);
+	void generatorChanged(int newGeneratorIndex);
+	void scaleSizeChanged(int newSizeIndex);
+
+	void sendScaleData();
+
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -59,6 +69,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	ScaleStructure* scaleStructure;
     //[/UserVariables]
 
     //==============================================================================
@@ -95,14 +106,16 @@ class MOSDebugWindow : public DocumentWindow
 public:
 
 	MOSDebugWindow(ScaleStructure* structureToEdit)
-		: DocumentWindow("MOS Debug", Colours::lightgrey, DocumentWindow::allButtons)
+		: DocumentWindow("MOS Debug", Colours::lightgrey, DocumentWindow::minimiseButton)
 	{
 		scaleStructure = structureToEdit;
 
 		mosDialog = std::make_unique<AdvancedMOSDialog>();
 		setContentComponent(mosDialog.get());
 
-		setSize(600, 400);
+		mosDialog->setScaleStructure(scaleStructure);
+
+		setSize(500, 210);
 	}
 };
 
