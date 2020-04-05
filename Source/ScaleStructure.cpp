@@ -166,7 +166,8 @@ void ScaleStructure::calculateProperties()
 	keyboardTypes.clear();
 	pgCoordinates.clear();
 
-	Array<int> cf = getContinuedFraction((double)generatorIndex / period);
+	int generatorDegree = coprimeGenerators[generatorIndex];
+	Array<int> cf = getContinuedFraction((double)generatorDegree / period);
 
 	// seed the sequence
 	Point<int> parent1 = Point<int>(-1 + cf[0], 1);
@@ -199,7 +200,7 @@ void ScaleStructure::calculateProperties()
 		}
 	}
 
-	generatorChain = getGeneratorChain(generatorIndex, period);
+	generatorChain = getGeneratorChain(generatorDegree, period);
 
 	// find step sizes
 	calculateStepSizes();
