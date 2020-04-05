@@ -24,6 +24,7 @@
 #include "MappingLogic.h"
 #include "IncrMidiNotesMapping.h"
 #include "BoardGeometry.h"
+#include "MOSDebugDialog.h"
 //[/Headers]
 
 
@@ -79,6 +80,8 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	std::unique_ptr<IncrMidiNotesMapping>	incrMidiNotesMapping;
+	std::unique_ptr<ScaleStructure> scaleStructure;
+	std::unique_ptr<MOSDebugWindow> mosDebugWindow;
 
 	MappingLogicBase*		mappingLogic;
 	TerpstraBoardGeometry	boardGeometry;

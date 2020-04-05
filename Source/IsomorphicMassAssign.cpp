@@ -159,6 +159,9 @@ IsomorphicMassAssign::IsomorphicMassAssign ()
 
 	incrMidiNotesMapping->getMappingLogic()->addListener(this);
 
+	scaleStructure = std::make_unique<ScaleStructure>(12);
+	mosDebugWindow = std::make_unique<MOSDebugWindow>(scaleStructure.get());
+	mosDebugWindow->setVisible(true);
 
 	// Default selection
 	// Todo: read from user settings
