@@ -21,6 +21,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#include "ScaleStructure.h"
 //[/Headers]
 
 
@@ -84,5 +86,24 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
-//[/EndFile]
 
+class MOSDebugWindow : public DocumentWindow
+{
+	std::unique_ptr<AdvancedMOSDialog> mosDialog;
+	ScaleStructure* scaleStructure;
+
+public:
+
+	MOSDebugWindow(ScaleStructure* structureToEdit)
+		: DocumentWindow("MOS Debug", Colours::lightgrey, DocumentWindow::allButtons)
+	{
+		scaleStructure = structureToEdit;
+
+		mosDialog = std::make_unique<AdvancedMOSDialog>();
+		setContentComponent(mosDialog.get());
+
+		setSize(600, 400);
+	}
+};
+
+//[/EndFile]
