@@ -103,7 +103,7 @@ private:
     int					currentSingleKeySelection;
 
     // Key edit positioning
-    HexagonTilingGeometry tilingGeometry;
+    HexTile tilingGeometry;
 
     //===========================================================================
     // Style Helpers
@@ -148,7 +148,7 @@ private:
 
 	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;
-
+    Array<Point<int>>       octaveCoordinates;
     //[/UserVariables]
 
     //==============================================================================

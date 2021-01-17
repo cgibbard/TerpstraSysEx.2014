@@ -10,6 +10,141 @@
 
 #include "HexagonTilingGeometry.h"
 
+void LinearTiling::setBasesAngle(double thetaBetweenBasisVectors)
+{
+	theta = thetaBetweenBasisVectors;
+	angleCos = cos(theta);
+	angleSin = sin(theta);
+
+	recalculateBasisComponents();
+}
+
+void LinearTiling::setHorizontalBasisRadius(double radius)
+{
+	radiusHorizontal = radius;
+}
+
+void LinearTiling::setAngledBasisRadius(double radius)
+{
+	radiusAngled = radius;
+	recalculateBasisComponents();
+}
+
+void LinearTiling::setTileRotationAngle(double angleIn)
+{
+	rotationAngle = rotationAngle;
+	recalculateTileTransform(origin);
+}
+
+void LinearTiling::setOrigin(Point<float> originPointIn)
+{
+	origin = originPointIn;
+}
+
+void LinearTiling::scaleRotatedTileToBounds(bool doScaling, Rectangle<float> boundsIn, bool centreInBounds)
+{
+	scaleToFitBounds = doScaling;
+	givenBounds = boundsIn;
+
+	Point<float> originToUse = (centreInBounds) ? boundsIn.getCentre() : origin;
+	recalculateTileTransform(originToUse);
+}
+
+void LinearTiling::setHorizontalBasisScalar(float scalarIn)
+{
+	horizontalBasisScalar = scalarIn;
+}
+
+void LinearTiling::setAngledBasisScalar(float scalarIn)
+{
+	angledBasisScalar = scalarIn;
+}
+
+AffineTransform LinearTiling::getTileMatrix() const
+{
+	AffineTransform matrix;
+
+	matrix.mat00 = horizontalBasisScalar * radiusHorizontal;
+	//matrix.mat10 = 0; // This is default
+	matrix.mat01 = angledBasisScalar * angledXComponent;
+	matrix.mat11 = angledBasisScalar * angledYComponent;
+
+	return matrix;
+}
+
+Array<Point<float>> LinearTiling::transformPointsFromOrigin(const Array<Point<int>>& pointsIn) const
+{
+	Array<Point<float>> pointsOut;
+	AffineTransform matrix = getTileMatrix().followedBy(transform);
+
+	for (auto point : pointsIn)
+		pointsOut.add(origin + point.toFloat().transformedBy(matrix));
+
+	return pointsOut;
+}
+
+Array<Point<float>> LinearTiling::getPointsBetween(Point<int> horizontalRange, Point<int> verticalRange) const
+{
+	Array<Point<int>> points; // TODO enumerate input
+	return transformPointsFromOrigin(points);
+}
+
+void LinearTiling::recalculateBasisComponents()
+{
+	angledXComponent = radiusAngled * angleCos;
+	angledYComponent = radiusAngled * angleSin;
+}
+
+void LinearTiling::recalculateTileTransform(Point<float> rotationOrigin)
+{
+	transform = AffineTransform::rotation(rotationAngle, rotationOrigin.x, rotationOrigin.y);
+
+	if (scaleToFitBounds)
+	{
+
+	}
+	else
+	{
+		
+	}
+}
+
+//==============================================================================
+
+void HexTile::setRadius(double radius)
+{
+	outerRadius = radius;
+	recalculateHexagonComponents();
+}
+
+void HexTile::setMargin(double margin)
+{
+	hexagonMargin = margin;
+	recalculateHexagonComponents();
+}
+
+void HexTile::recalculateHexagonComponents()
+{
+	radiusAngled = (outerRadius + hexagonMargin) * HEXRADIUSTOLATERAL;
+	radiusHorizontal = 2 * outerRadius * HEXRADIUSTOLATERAL + hexagonMargin;
+
+	recalculateBasisComponents();
+}
+
+void HexTile::recalculateBasisComponents()
+{
+	angledXComponent = radiusAngled;
+	angledYComponent = 1.5 * (outerRadius) + hexagonMargin* HEXRADIUSTOLATERAL;
+}
+
+Array<Point<float>> transformPointsFromOrigin(const Array<Point<int>>& pointsIn) 
+{
+	return Array<Point<float>>();
+}
+
+//==============================================================================
+//==============================================================================
+
 void HexagonTilingGeometry::setColumnAngle(double angleIn)
 { 
 	columnBasisAngle = angleIn; 
@@ -41,7 +176,7 @@ void HexagonTilingGeometry::fitTilingTo(Rectangle<float> boundsIn,
 	tileBounds = calculateSmallestBounds(widestRow, longestColumn);
 
 	double rad = radius * verticalScalar;
-	double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+	double lat = radius * HEXRADIUSTOLATERAL * horizontalScalar;
 	startingCentre = Point<double>(bounds.getX() + lat, bounds.getY() + rad);
 
 	recalculateTransform(tileBounds.getCentre(), true);
@@ -104,7 +239,7 @@ double HexagonTilingGeometry::calculateTileWidth(int widestRow, double radiusIns
 
 double HexagonTilingGeometry::calculateTileHeight(int longestColumn, double radiusBounding, double margin)
 {
-	return (longestColumn - 1.0) * (1.5 * radiusBounding + margin * LATERALRADIUSRATIO) + 2 * radiusBounding;
+	return (longestColumn - 1.0) * (1.5 * radiusBounding + margin * HEXRADIUSTOLATERAL) + 2 * radiusBounding;
 }
 
 double HexagonTilingGeometry::distanceStepsAwayX(double lateral, double margin, int stepsX, int stepsY)
@@ -114,7 +249,7 @@ double HexagonTilingGeometry::distanceStepsAwayX(double lateral, double margin, 
 
 double HexagonTilingGeometry::distanceStepsAwayY(double radius, double margin, int stepsY)
 {
-	return stepsY * (radius * 1.5 + margin * LATERALRADIUSRATIO);
+	return stepsY * (radius * 1.5 + margin * HEXRADIUSTOLATERAL);
 }
 
 Point<double> HexagonTilingGeometry::getSkewedPoint(
@@ -132,8 +267,8 @@ Point<double> HexagonTilingGeometry::getSkewedPoint(
 
 double HexagonTilingGeometry::findBestRadius(int widestRow, int longestColumn)
 {
-	double widthBased = (bounds.getWidth() - margin * (widestRow - 1)) / (2 * widestRow + 1) / LATERALRADIUSRATIO;
-	double heightBased = (2 * bounds.getHeight() - margin * 2 * LATERALRADIUSRATIO * (longestColumn + 1)) / (3 * longestColumn + 1);
+	double widthBased = (bounds.getWidth() - margin * (widestRow - 1)) / (2 * widestRow + 1) / HEXRADIUSTOLATERAL;
+	double heightBased = (2 * bounds.getHeight() - margin * 2 * HEXRADIUSTOLATERAL * (longestColumn + 1)) / (3 * longestColumn + 1);
 
 	return juce::jmin(widthBased, heightBased);
 }
@@ -179,7 +314,7 @@ Array<Point<float>> HexagonTilingGeometry::calculateCentres(const TerpstraBoardG
 	const int maxColumnLength = numRowsInOctave + BOARDROWOFFSET * (totalOctaves - 1);
 
 	const double rad = radius * verticalScalar;
-	const double lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+	const double lat = radius * HEXRADIUSTOLATERAL * horizontalScalar;
 
 	int octaveColumnOffset = startingOctave * numColumnsInOctave;
 	int octaveRowOffset = startingOctave * BOARDROWOFFSET;
@@ -275,7 +410,7 @@ Array<Point<float>> HexagonTilingGeometry::calculateCentresSkewed(const Terpstra
 Rectangle<float> HexagonTilingGeometry::calculateSmallestBounds(int widestRowSize, int longestColumnSize) const
 {
 	float rad = radius * verticalScalar;
-	float lat = radius * LATERALRADIUSRATIO * horizontalScalar;
+	float lat = radius * HEXRADIUSTOLATERAL * horizontalScalar;
 
 	return Rectangle<float>(
 		bounds.getX(), bounds.getY(),
