@@ -153,6 +153,8 @@ public:
 	
 	double findBestRadius(int widestRow, int longestColumn);
 
+	Rectangle<float> findSkewedUnitBounds();
+
 private:
 
 	void recalculateTransform(Point<float> rotateOrigin, bool centreAndScale);

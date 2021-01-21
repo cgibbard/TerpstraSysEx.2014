@@ -68,6 +68,70 @@ private:
 	Colour keyColour;
 };
 
+// Representation of the full keyboard and graphic, with an optimized drawing method
+class AllKeysDisplay : public Component
+{
+public:
+
+	AllKeysDisplay();
+
+	void paint(juce::Graphics& g) override;
+
+	void resized() override;
+
+	Image rescaleAllKeys();
+
+	Image redrawAllKeys(bool returnScaled = true);
+
+	Image getAllKeysRender(bool returnScaled = true);
+
+	Array<Colour> keyColours;
+
+private:
+
+	const Image fullKeyboard;
+	const Image keyShape;
+	const Image keybedShadows;
+
+	Image renderFullSize;
+	Image renderScaled;
+
+
+	double renderScaleWidth;
+	double renderScaleHeight;
+	int keyWidth;
+	int keyHeight;
+
+	const float graphicBaseWidth;
+	const float graphicBaseHeight;
+
+	const float octaveLineYRatio = 0.0236559f;
+
+	const float keybedX = 0.06908748f;
+
+	const float keyW = 0.027352f;
+	const float keyH = 0.07307f;
+
+	const float oct1Key1X = 0.0839425f;
+	const float oct1Key1Y = 0.335887f;
+
+	const float oct1Key56X = 0.27304881f;
+	const float oct1Key56Y = 0.8314673f;
+
+	const float oct5Key7X = 0.878802f;
+	const float oct5Key7Y = 0.356511491f;
+
+	//===============================================================================
+
+	const Point<float>  oct1Key1;
+	const Point<float> oct1Key56;
+	const Point<float>  oct5Key7;
+
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
+	HexagonTilingGeometry   tilingGeometry;
+};
+
 //[/Headers]
 
 
@@ -116,6 +180,8 @@ private:
 	int			currentSetSelection;
 
 	HexagonTilingGeometry tilingGeometry;
+
+	std::unique_ptr<AllKeysDisplay> allKeysDisplay;
 
 	Image keyColourLayer;
 	Image keyShadowLayer;

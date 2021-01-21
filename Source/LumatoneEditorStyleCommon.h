@@ -325,7 +325,7 @@ enum LumatoneEditorAssets
     LoadIcon            = 0x0002000,
     SaveIcon            = 0x0002001,
     ImportIcon          = 0x0002002,
-    LumatoneGraphic     = 0x0002100,
+    KeyboardBase        = 0x0002100,
     KeybedShadows       = 0x0002101,
     KeyShape            = 0x0002200,
     KeyShadow           = 0x0002201,
