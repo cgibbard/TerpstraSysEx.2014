@@ -37,13 +37,8 @@ public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
 	~KeyMiniDisplayInsideAllKeysOverview();
 
-	void paint(Graphics&) override;
-	void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
-
-
-	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
 
 	// Implementation of TerpstraMidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
@@ -61,8 +56,6 @@ private:
 	int keyIndex = -1;
 	bool isHighlighted = false;
 
-	Image* colourGraphic = nullptr;
-	Image* shadowGraphic = nullptr;
 };
 
 // Representation of the full keyboard and graphic, with an optimized drawing method
@@ -214,21 +207,6 @@ private:
 	const float filenameBaselineY   = 0.1221505f;
 
 	const float octaveLineYRatio    = 0.0236559f;
-
-	// In reference to lumatoneBounds
-	const float keybedX = 0.06908748f;
-	
-	const float keyW = 0.027352f;
-	const float keyH = 0.07307f;
-
-	const float oct1Key1X = 0.0839425f;
-	const float oct1Key1Y = 0.335887f;
-
-	const float oct1Key56X = 0.27304881f;
-	const float oct1Key56Y = 0.8314673f;
-
-	const float oct5Key7X = 0.878802f;
-	const float oct5Key7Y = 0.356511491f;
 
 	//===============================================================================
 
