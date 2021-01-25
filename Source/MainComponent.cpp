@@ -385,5 +385,5 @@ void MainContentComponent::resized()
 
 void MainContentComponent::refreshAllKeysOverview()
 {
-	allKeysOverview->repaint();
+	allKeysOverview->refreshDisplay();
 }

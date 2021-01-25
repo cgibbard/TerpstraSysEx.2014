@@ -52,14 +52,14 @@ KeyMiniDisplayInsideAllKeysOverview::~KeyMiniDisplayInsideAllKeysOverview()
 
 void KeyMiniDisplayInsideAllKeysOverview::paint(Graphics& g)
 {
-	jassert(getParentComponent() != nullptr);
-	bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
+	//jassert(getParentComponent() != nullptr);
+	//bool boardIsSelected = boardIndex == dynamic_cast<AllKeysOverview*>(getParentComponent())->getCurrentSetSelection();
 
-	Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
+	//Colour hexagonColour = findColour(TerpstraKeyEdit::backgroundColourId).overlaidWith(getKeyColour());
 		//.withAlpha(boardIsSelected ? TERPSTRASINGLEKEYCOLOURALPHA : TERPSTRASINGLEKEYCOLOURUNSELECTEDMINIALPHA));
 	// NEW STYLE TODO: Use above alpha, or do octave outline?
 	//// ToDo if highlighted: even different alpha?
-	g.setColour(hexagonColour);
+	//g.setColour(hexagonColour);
 	//g.fillPath(hexPath);
 
 	//// Key highlighted or not: color and thickness of the line
@@ -222,7 +222,7 @@ void AllKeysDisplay::resized()
 	redrawAllKeys();
 }
 
-Image AllKeysDisplay::redrawAllKeys(bool returnScaled )
+Image AllKeysDisplay::redrawAllKeys(bool returnScaled)
 {
 	renderFullSize = fullKeyboard.createCopy();
 	Graphics g(renderFullSize);
@@ -245,26 +245,24 @@ Image AllKeysDisplay::redrawAllKeys(bool returnScaled )
 		mapping = main->getMappingInEdit();
 	}
 
-	const int octaveSize = TerpstraSysExApplication::getApp().getOctaveBoardSize();
-
-	const int numKeys = octaveSize * NUMBEROFBOARDS;
-
-	for (int i = 0; i < numKeys; i++)
+	int keyIndex = 0;
+	for (int octave = 0; octave < NUMBEROFBOARDS; octave++)
 	{
-		int octave = i / octaveSize;
-
-		if (main)
+		for (int i = 0; i < TerpstraSysExApplication::getApp().getOctaveBoardSize(); i++)
 		{
-			auto key = mapping.sets[octave].theKeys[i % octaveSize];
-			g.setColour(Colour(key.colour));
-		}
-		else
-			g.setColour(Colour());
-		
-		centre = keyCentres[i];
-		g.drawImageAt(keyShape, centre.x - halfKeyWidth, centre.y - halfKeyHeight, true);
-	}
+			if (main)
+			{
+				auto key = mapping.sets[octave].theKeys[i];
+				g.setColour(Colour(key.colour));
+			}
+			else
+				g.setColour(Colour());
 
+			centre = keyCentres[keyIndex];
+			g.drawImageAt(keyShape, centre.x - halfKeyWidth, centre.y - halfKeyHeight, true);
+			keyIndex++;
+		}
+	}
 	g.drawImageAt(keybedShadows, 0, 0);
 	
 	rescaleAllKeys();

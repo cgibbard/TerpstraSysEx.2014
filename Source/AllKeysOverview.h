@@ -45,7 +45,7 @@ public:
 
 	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
 
-	// Implementation of TerpstraNidiDriver::Listener
+	// Implementation of TerpstraMidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
@@ -63,9 +63,6 @@ private:
 
 	Image* colourGraphic = nullptr;
 	Image* shadowGraphic = nullptr;
-
-	//DEBUG
-	Colour keyColour;
 };
 
 // Representation of the full keyboard and graphic, with an optimized drawing method
@@ -155,8 +152,10 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-	int getCurrentSetSelection() const { return currentSetSelection ;}
+	int getCurrentSetSelection() const { return currentSetSelection; }
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
+
+	void refreshDisplay() { allKeysDisplay->redrawAllKeys(); repaint(); }
 
     //[/UserMethods]
 
