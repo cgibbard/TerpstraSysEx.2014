@@ -21,6 +21,7 @@
 #include "GeneralOptionsDlg.h"
 #include "CurvesArea.h"
 #include "GlobalSettingsArea.h"
+#include "PedalSensitivityDlg.h"
 #include "LumatoneEditorLookAndFeel.h"
 #include "ColourPaletteWindow.h"
 
@@ -99,6 +100,8 @@ private:
 
 	std::unique_ptr<GlobalSettingsArea> globalSettingsArea;
 
+	std::unique_ptr<PedalSensitivityDlg> pedalSensitivityDlg;
+
 	//==============================================================================
 	// Data
 	TerpstraKeyMapping	mappingData;
@@ -136,7 +139,7 @@ private:
     const float settingsAreaHeight          = 0.148148f;
 
     const Rectangle<float> generalSettingsBounds = { settingsColumnX, settingsAreaY, 0.17f, settingsAreaHeight };
-    const Rectangle<float>   pedalSettingsBounds = { 7.0f / 9.0f,     settingsAreaY, 0.26f, settingsAreaHeight };
+    const Rectangle<float>   pedalSettingsBounds = { 0.777778f,       settingsAreaY, 0.18f, settingsAreaHeight };
     const Rectangle<float>      curvesAreaBounds = { settingsColumnX, 0.7174f,       0.3626f, 0.21f };
 
 };

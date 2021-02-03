@@ -31,10 +31,13 @@ MainContentComponent::MainContentComponent()
 	noteEditArea.reset(new NoteEditArea());
 	addAndMakeVisible(noteEditArea.get());
 	noteEditArea->getOctaveBoardSelectorTab()->addChangeListener(this);
-	noteEditArea->registerPaletteWindowRequestListener(this);
+	noteEditArea->getColourEditComponent()->addListener(this); // Open up ColourPaletteWindow
 
 	generalOptionsArea.reset(new GeneralOptionsDlg());
 	addAndMakeVisible(generalOptionsArea.get());
+
+	pedalSensitivityDlg.reset(new PedalSensitivityDlg());
+	addAndMakeVisible(pedalSensitivityDlg.get());
 
 	curvesArea.reset(new CurvesArea());
 	addAndMakeVisible(curvesArea.get());
@@ -67,6 +70,7 @@ MainContentComponent::~MainContentComponent()
 	generalOptionsArea = nullptr;
 	curvesArea = nullptr;
 	globalSettingsArea = nullptr;
+	pedalSensitivityDlg = nullptr;
 }
 
 void MainContentComponent::restoreStateFromPropertiesFile(PropertiesFile* propertiesFile)
@@ -99,6 +103,7 @@ void MainContentComponent::setData(TerpstraKeyMapping& newData, bool withRefresh
 		refreshAllKeysOverview();
 		noteEditArea->refreshKeyFields();
 		generalOptionsArea->loadFromMapping();
+		pedalSensitivityDlg->loadFromMapping();
 		curvesArea->loadFromMapping();
 		curvesArea->repaint();
 	}
@@ -301,15 +306,20 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster *source)
 
 void MainContentComponent::buttonClicked(Button* btn)
 {
-	// If this resolves, colour palette window was requested
 	ColourEditComponent* colourEdit = dynamic_cast<ColourEditComponent*>(btn);
 
 	if (colourEdit)
 	{
-		// TODO: Initialize with palettes
-		//       Set swatch # or custom colour as current colour
-		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow({}/*TODO*/);
+		ColourPaletteWindow* paletteWindow = new ColourPaletteWindow(TerpstraSysExApplication::getApp().getColourPalettes());
 		paletteWindow->setSize(proportionOfWidth(popupWidth), proportionOfHeight(popupHeight));
+
+		if (btn == noteEditArea->getColourEditComponent())
+		{
+			colourEdit = noteEditArea->getColourEditComponent();
+			paletteWindow->listenToColourSelection(noteEditArea->getSingleNoteColourTextEditor());
+		}
+		// else, a preset button colour button was pressed
+
 		paletteWindow->listenToColourSelection(colourEdit);
 
 		Rectangle<int> componentArea = colourEdit->getScreenBounds().translated(-getScreenX(), -getScreenY());
@@ -321,6 +331,7 @@ void MainContentComponent::buttonClicked(Button* btn)
 		);
 
 		popupBox.setLookAndFeel(&getLookAndFeel());
+		// TODO: Set swatch # or custom colour as current colour
 	}
 }
 
@@ -362,6 +373,8 @@ void MainContentComponent::resized()
 	noteEditArea->setControlsTopLeftPosition(proportionOfWidth(assignMarginX), controlsArea.getY());
 	
 	generalOptionsArea->setBounds(getLocalBounds().toFloat().getProportion(generalSettingsBounds).toNearestInt());
+	pedalSensitivityDlg->setBounds(getLocalBounds().toFloat().getProportion(pedalSettingsBounds).toNearestInt());
+
 	curvesArea->setBounds(getLocalBounds().toFloat().getProportion(curvesAreaBounds).toNearestInt());
 
 	globalSettingsArea->setBounds(getLocalBounds()
@@ -372,5 +385,5 @@ void MainContentComponent::resized()
 
 void MainContentComponent::refreshAllKeysOverview()
 {
-	allKeysOverview->repaint();
+	allKeysOverview->refreshDisplay();
 }

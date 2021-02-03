@@ -325,7 +325,7 @@ enum LumatoneEditorAssets
     LoadIcon            = 0x0002000,
     SaveIcon            = 0x0002001,
     ImportIcon          = 0x0002002,
-    LumatoneGraphic     = 0x0002100,
+    KeyboardBase        = 0x0002100,
     KeybedShadows       = 0x0002101,
     KeyShape            = 0x0002200,
     KeyShadow           = 0x0002201,
@@ -345,6 +345,7 @@ enum LumatoneEditorColourIDs
     MediumBackground,
     LightBackground,
     ControlAreaBackground,
+    ControlBoxHighlighted,
     ActiveText,
     InactiveText,
     DescriptionText,
@@ -356,7 +357,8 @@ enum LumatoneEditorColourIDs
     CurveGradientMax,
     CurveGridColour,
     RotaryGradientMin,
-    RotaryGradientMax
+    RotaryGradientMax,
+    DisabledOverlay
 };
 
 // Static functions for getting default Lumatone Editor fonts
@@ -377,6 +379,9 @@ namespace LumatoneEditorStyleIDs
 
     // A component with text can have it scaled with this property
     static Identifier fontHeightScalar = Identifier("FontHeightScalar");
+
+    // Override background colour for a Label's TextEditor when being edited
+    static Identifier labelTextEditorBackgroundColour = Identifier("LabelTextEditorBackgroundColour");
 
     static Identifier tabbedButtonBarDepthScalar = Identifier("TabbedButtonBarDepthScalar");
 

@@ -25,7 +25,7 @@
 #include "KeyboardDataStructure.h"
 #include "HexagonTilingGeometry.h"
 
-#include "ImageResampling\ImageResampler.h"
+#include "ImageResampling/ImageResampler.h"
 #include "BoardGeometry.h"
 #include "TerpstraMidiDriver.h"
 
@@ -37,15 +37,10 @@ public:
 	KeyMiniDisplayInsideAllKeysOverview(int newBoardIndex, int newKeyIndex);
 	~KeyMiniDisplayInsideAllKeysOverview();
 
-	void paint(Graphics&) override;
-	void resized() override;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const juce::MouseEvent& e) override;
 
-
-	void setKeyGraphics(Image& colourGraphicIn, Image& shadowGraphicIn);
-
-	// Implementation of TerpstraNidiDriver::Listener
+	// Implementation of TerpstraMidiDriver::Listener
 	void midiMessageReceived(const MidiMessage& midiMessage) override;
 	void midiMessageSent(const MidiMessage& midiMessage) override {}
 	void midiSendQueueSize(int queueSize) override {}
@@ -61,11 +56,70 @@ private:
 	int keyIndex = -1;
 	bool isHighlighted = false;
 
-	Image* colourGraphic = nullptr;
-	Image* shadowGraphic = nullptr;
+};
 
-	//DEBUG
-	Colour keyColour;
+// Representation of the full keyboard and graphic, with an optimized drawing method
+class AllKeysDisplay : public Component
+{
+public:
+
+	AllKeysDisplay();
+
+	void paint(juce::Graphics& g) override;
+
+	void resized() override;
+
+	Image rescaleAllKeys();
+
+	Image redrawAllKeys(bool returnScaled = true);
+
+	Image getAllKeysRender(bool returnScaled = true);
+
+	Array<Colour> keyColours;
+
+private:
+
+	const Image fullKeyboard;
+	const Image keyShape;
+	const Image keybedShadows;
+
+	Image renderFullSize;
+	Image renderScaled;
+
+
+	double renderScaleWidth;
+	double renderScaleHeight;
+	int keyWidth;
+	int keyHeight;
+
+	const float graphicBaseWidth;
+	const float graphicBaseHeight;
+
+	const float octaveLineYRatio = 0.0236559f;
+
+	const float keybedX = 0.06908748f;
+
+	const float keyW = 0.027352f;
+	const float keyH = 0.07307f;
+
+	const float oct1Key1X = 0.0839425f;
+	const float oct1Key1Y = 0.335887f;
+
+	const float oct1Key56X = 0.27304881f;
+	const float oct1Key56Y = 0.8314673f;
+
+	const float oct5Key7X = 0.878802f;
+	const float oct5Key7Y = 0.356511491f;
+
+	//===============================================================================
+
+	const Point<float>  oct1Key1;
+	const Point<float> oct1Key56;
+	const Point<float>  oct5Key7;
+
+	// Geometry settings
+	TerpstraBoardGeometry	boardGeometry;
+	HexagonTilingGeometry   tilingGeometry;
 };
 
 //[/Headers]
@@ -91,8 +145,10 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-	int getCurrentSetSelection() const { return currentSetSelection ;}
+	int getCurrentSetSelection() const { return currentSetSelection; }
 	void setCurrentSetSelection(int newSetSelection) { currentSetSelection = newSetSelection; repaint(); }
+
+	void refreshDisplay() { allKeysDisplay->redrawAllKeys(); repaint(); }
 
     //[/UserMethods]
 
@@ -116,6 +172,8 @@ private:
 	int			currentSetSelection;
 
 	HexagonTilingGeometry tilingGeometry;
+
+	std::unique_ptr<AllKeysDisplay> allKeysDisplay;
 
 	Image keyColourLayer;
 	Image keyShadowLayer;
@@ -149,21 +207,6 @@ private:
 	const float filenameBaselineY   = 0.1221505f;
 
 	const float octaveLineYRatio    = 0.0236559f;
-
-	// In reference to lumatoneBounds
-	const float keybedX = 0.06908748f;
-	
-	const float keyW = 0.027352f;
-	const float keyH = 0.07307f;
-
-	const float oct1Key1X = 0.0839425f;
-	const float oct1Key1Y = 0.335887f;
-
-	const float oct1Key56X = 0.27304881f;
-	const float oct1Key56Y = 0.8314673f;
-
-	const float oct5Key7X = 0.878802f;
-	const float oct5Key7Y = 0.356511491f;
 
 	//===============================================================================
 

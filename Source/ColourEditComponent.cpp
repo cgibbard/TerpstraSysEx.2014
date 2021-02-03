@@ -326,6 +326,12 @@ void ColourEditComponent::paintButton(Graphics& g, bool shouldDrawButtonAsHighli
     Colour backgroundColour = findColour(TextButton::ColourIds::buttonColourId);
     Colour textColour       = backgroundColour.contrasting();
 
+    if (!isEnabled())
+    {
+        backgroundColour = backgroundColour.darker().withMultipliedSaturation(0.3f);
+        textColour = textColour.overlaidWith(Colours::darkgrey.withAlpha(0.6f));
+    }
+
     if (shouldDrawButtonAsHighlighted)
     {
         backgroundColour = (isMouseButtonDown())
@@ -353,7 +359,10 @@ void ColourEditComponent::setColour(String colourAsString)
 	//jassert(colourCombo != nullptr);
 
     currentColourAsString = colourAsString;
-    currentColour = Colour::fromString(colourAsString);
+    if (currentColourAsString.length() == 6)
+        currentColourAsString = "FF" + colourAsString;
+
+    currentColour = Colour::fromString(currentColourAsString);
     Component::setColour(TextButton::ColourIds::buttonColourId, currentColour);
     repaint();
 
@@ -390,6 +399,111 @@ void ColourEditComponent::colourChangedCallback(ColourSelectionBroadcaster* sour
 {
     setColour(newColour.toString());
 }
+
+
+//====================================================================================================
+
+ColourTextEditor::ColourTextEditor(String componentName, String initialString)
+    : TextEditor(componentName)
+{
+    setTooltip(translate("ColourHexValueEditorTool"));
+    setInputRestrictions(6, "0123456789ABCDEFabcdef");
+    addListener(this);
+
+    setText(initialString, NotificationType::dontSendNotification);
+    checkInputAndUpdate();
+}
+
+String ColourTextEditor::checkInputAndUpdate(bool sendSelectorListenerUpdate)
+{
+    String text = parseTextToColourString(getText().toLowerCase());
+    if (text.length() > 0)
+    {
+        // only accept RGB
+        if (text.length() > 6)
+            text = text.substring(text.length() - 6);
+
+        // restrict to lowercase display
+        setText(text, NotificationType::dontSendNotification);
+
+        if (sendSelectorListenerUpdate)
+        {
+            String opaque = "ff" + text;
+            lastBroadcastedColour = Colour(opaque.getHexValue32());
+            selectorListeners.call(&ColourSelectionListener::colourChangedCallback, this, lastBroadcastedColour);
+        }
+    }
+
+    return text;
+}
+
+void ColourTextEditor::resetToLastUpdated(bool sendSelectorListenerUpdate)
+{
+    NotificationType notification = (sendSelectorListenerUpdate) 
+        ? NotificationType::sendNotification 
+        : NotificationType::dontSendNotification;
+
+    setText(lastBroadcastedColour.toDisplayString(true).toLowerCase(), notification);
+}
+
+/** Called when the user changes the text in some way. */
+void ColourTextEditor::textEditorTextChanged(TextEditor&)
+{
+    // confirm changes
+    checkInputAndUpdate();
+}
+
+/** Called when the user presses the return key. */
+void ColourTextEditor::textEditorReturnKeyPressed(TextEditor&)
+{
+    // confirm changes
+    checkInputAndUpdate();
+}
+
+/** Called when the user presses the escape key. */
+void ColourTextEditor::textEditorEscapeKeyPressed(TextEditor&)
+{
+    // reset changes
+    resetToLastUpdated();
+}
+
+/** Called when the text editor loses focus. */
+void ColourTextEditor::textEditorFocusLost(TextEditor&)
+{
+    // confirm changes
+    checkInputAndUpdate();
+}
+
+Colour ColourTextEditor::getSelectedColour()
+{
+    String opaque = "ff" + parseTextToColourString(getText());
+    return Colour(opaque.getHexValue32());
+}
+
+void ColourTextEditor::colourChangedCallback(ColourSelectionBroadcaster* source, Colour newColour)
+{
+    // Safeguard
+    if (this != source)
+        setText(newColour.toString().substring(2), false);
+}
+
+Colour ColourTextEditor::getLastUpdatedColour() const
+{
+    return lastBroadcastedColour;
+}
+
+String ColourTextEditor::parseTextToColourString(String textIn)
+{
+    // Skip odd-numbered lengths and those less than 6 for RGB
+    if (textIn.length() % 2 == 1 || textIn.length() != 6)
+    {
+        return String();
+    }
+
+    return textIn;
+}
+
+
 
 //[/MiscUserCode]
 

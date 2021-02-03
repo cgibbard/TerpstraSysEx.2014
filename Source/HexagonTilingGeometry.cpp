@@ -273,6 +273,16 @@ double HexagonTilingGeometry::findBestRadius(int widestRow, int longestColumn)
 	return juce::jmin(widthBased, heightBased);
 }
 
+Rectangle<float> HexagonTilingGeometry::findSkewedUnitBounds()
+{
+	const double colX = columnXComponent * horizontalScalar;
+	const double colY = columnYComponent * horizontalScalar;
+	const double rowX = rowXComponent * verticalScalar;
+	const double rowY = rowYComponent * verticalScalar;
+
+	return Rectangle<float>(0, 0, 2 * (colX + rowX), 2 * (colY + rowY));
+}
+
 void HexagonTilingGeometry::recalculateTransform(Point<float> rotateOrigin, bool centreAndScale)
 {
 	transform = AffineTransform::rotation(angle, rotateOrigin.x, rotateOrigin.y);
