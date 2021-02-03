@@ -117,9 +117,11 @@ private:
 	const Point<float> oct1Key56;
 	const Point<float>  oct5Key7;
 
+	Array<Point<float>> allKeyCentres;
+
 	// Geometry settings
 	TerpstraBoardGeometry	boardGeometry;
-	HexagonTilingGeometry   tilingGeometry;
+	LinearTiling			tilingGeometry;
 };
 
 //[/Headers]
@@ -170,8 +172,6 @@ private:
 	OwnedArray<OctaveBoard> octaveBoards;
 
 	int			currentSetSelection;
-
-	HexagonTilingGeometry tilingGeometry;
 
 	std::unique_ptr<AllKeysDisplay> allKeysDisplay;
 

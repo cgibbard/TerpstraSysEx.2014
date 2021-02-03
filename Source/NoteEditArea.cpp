@@ -88,7 +88,7 @@ NoteEditArea::NoteEditArea ()
 
 	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
 
-	octaveCoordinates = boardGeometry.getOctaveCoordinates();
+	octaveCoordinates = boardGeometry.getOctaveCoordinates(0);
     //[/UserPreSize]
 
 
@@ -171,19 +171,19 @@ void NoteEditArea::resized()
 
 	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	//tilingGeometry.fitTilingTo(
-	//	keyEditBounds,
-	//	boardGeometry.getMaxHorizontalLineSize(),
-	//	boardGeometry.horizontalLineCount(),
-	//	round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
-	//	TERPSTRASINGLEKEYROTATIONANGLE, true
-	//);
+	tilingGeometry.fitTilingTo(
+		keyEditBounds.toDouble(),
+		boardGeometry.getMaxHorizontalLineSize(),
+		boardGeometry.horizontalLineCount(),
+		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
+		TERPSTRASINGLEKEYROTATIONANGLE, true
+	);
 
-	tilingGeometry.setRadius(round(getWidth() * 0.02f));
-	tilingGeometry.setMargin(5);
-	tilingGeometry.setOrigin(keyEditBounds.getTopLeft());
+	//tilingGeometry.setRadius(round(getWidth() * 0.02f));
+	//tilingGeometry.setMargin(5);
+	//tilingGeometry.setOrigin(keyEditBounds.getTopLeft().toDouble());
 	//tilingGeometry.scaleRotatedTileToBounds(true, keyEditBounds);
-	tilingGeometry.setTileRotationAngle(TERPSTRASINGLEKEYROTATIONANGLE);
+	//tilingGeometry.setTileRotationAngle(TERPSTRASINGLEKEYROTATIONANGLE);
 
 	Array<Point<float>> keyCentres = tilingGeometry.transformPointsFromOrigin(octaveCoordinates);//tilingGeometry.getHexagonCentres(boardGeometry);
 	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
