@@ -240,16 +240,20 @@ int TerpstraBoardGeometry::getMaxHorizontalLineSize() const
 	return maxHorizontalLineSize;
 }
 
-Array<Point<int>> TerpstraBoardGeometry::getOctaveCoordinates() const
+Array<Point<int>> TerpstraBoardGeometry::getOctaveCoordinates(int boardIndex) const
 {
 	Array<Point<int>> pointsOut;
+
+	int boardColOffset = boardIndex * getMaxHorizontalLineSize();
+	int boardRowOffset = boardIndex * BOARDROWOFFSET;
 
 	for (int row = 0; row < horizontalLines.size(); row++)
 	{
 		for (int col = 0; col < horizontalLineSize(row); col++)
 		{
-			int offsetCol = firstColumnOffsets[row] + col;
-			pointsOut.add(Point<int>(offsetCol - (row / 2), row));
+			int boardCol = firstColumnOffsets[row] + col + boardColOffset;
+			int boardRow = row + boardRowOffset;
+			pointsOut.add(Point<int>(boardCol - (boardRow / 2), boardRow));
 			// Converts column offsets from vertical rows coordinates to slanted coordinates
 		}
 	}

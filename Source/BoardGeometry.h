@@ -49,7 +49,7 @@ public:
 
 	int getMaxHorizontalLineSize() const;
 
-	Array<Point<int>> getOctaveCoordinates() const;
+	Array<Point<int>> getOctaveCoordinates(int boardIndex) const;
 
 	// Attributes
 private:
