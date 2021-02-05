@@ -170,9 +170,14 @@ AllKeysDisplay::AllKeysDisplay()
 	  oct1Key56(graphicBaseWidth * oct1Key56X, graphicBaseHeight * oct1Key56Y),
 	  oct5Key7(graphicBaseWidth * oct5Key7X, graphicBaseHeight * oct5Key7Y)
 {
-	tilingGeometry.setColumnAngle(LUMATONEGRAPHICCOLUMNANGLE);
-	tilingGeometry.setRowAngle(LUMATONEGRAPHICROWANGLE);
-	tilingGeometry.fitSkewedTiling(oct1Key1, oct1Key56, 10, oct5Key7, 24, false);
+	tilingGeometry.fitTilingTo(oct1Key1, oct1Key56, oct5Key7, false, 24, 10);
+
+	Array<Point<int>> hexCoordinates;
+
+	for (int octave = 0; octave < NUMBEROFBOARDS; octave++)
+		hexCoordinates.addArray(boardGeometry.getOctaveCoordinates(octave));
+
+	allKeyCentres = tilingGeometry.transformPointsFromOrigin(hexCoordinates);
 
 	redrawAllKeys();
 }
@@ -201,9 +206,6 @@ Image AllKeysDisplay::redrawAllKeys(bool returnScaled)
 
 	Colour keyColour;
 	Point<float> centre;
-	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentresSkewed(boardGeometry, 0, NUMBEROFBOARDS);
-
-	Rectangle<float> keyBounds = tilingGeometry.findSkewedUnitBounds();
 
 	int halfKeyWidth = round(keyShape.getWidth() * 0.5f);
 	int halfKeyHeight = round(keyShape.getHeight() * 0.5f);
@@ -230,7 +232,7 @@ Image AllKeysDisplay::redrawAllKeys(bool returnScaled)
 			else
 				g.setColour(Colour());
 
-			centre = keyCentres[keyIndex];
+			centre = allKeyCentres[keyIndex];
 			g.drawImageAt(keyShape, centre.x - halfKeyWidth, centre.y - halfKeyHeight, true);
 			keyIndex++;
 		}

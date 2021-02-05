@@ -13,9 +13,8 @@
 #include "KeyboardDataStructure.h"
 
 //==============================================================================
-// Used to calculate the center point coordinates for a hexagon tiling.
-// This class treats a standard hexagon with a vertex aligned with the y-axis.
-// Added a bunch of "skew" methods to solve the render overlay system, but I will separate that out at some point.
+// Used to map a rectangular coordinate system to some other linear coodinate system
+// One basis vector is fixed horizontal while the other uses a specifed angle.
 
 #define HEXRADIUSTOLATERAL 0.8660254037844 // sqrt(3) / 2, proportional to radius, the length between the center and a vertex)
 #define HEXBASESANGLE      1.0471975511966
@@ -24,361 +23,229 @@ class LinearTiling
 {
 public:
 
-	// Square grid by default
-	LinearTiling() { recalculateBasisComponents(); }
+    // Square grid by default
+    LinearTiling() { recalculateBasisComponents(); }
 
-	LinearTiling(
-		double          basesAngle, 
-		double          horizontalRadius, 
-		double          verticalRadius, 
-		Point<float>    originIn = Point<float>(), 
-		double          tileRotationAngle = 0.0, 
-		float           horizontalScalar = 1.0f, 
-		float           verticalScalar = 1.0f
-	) : 
-		radiusHorizontal(horizontalRadius),
-		origin(originIn),
-		horizontalBasisScalar(horizontalScalar),
-		angledBasisScalar(verticalScalar)
-	{
-		radiusAngled = verticalRadius;
-		setBasesAngle(basesAngle);
-		setTileRotationAngle(tileRotationAngle);
-	};
+    LinearTiling(
+        double          basesAngle, 
+        double          horizontalRadius, 
+        double          verticalRadius, 
+        Point<double>   originIn = Point<double>(), 
+        double          tileRotationAngle = 0.0, 
+        double          horizontalScalar = 1.0f, 
+        double          verticalScalar = 1.0f
+    ) : 
+        radiusHorizontal(horizontalRadius),
+        origin(originIn),
+        horizontalBasisScalar(horizontalScalar),
+        angledBasisScalar(verticalScalar)
+    {
+        radiusAngled = verticalRadius;
+        setBasesAngle(basesAngle);
+        setTileRotationAngle(tileRotationAngle);
+    };
 
-	//=======================================================================
-	// Setters
+    //=======================================================================
+    // Setters
 
-	void setBasesAngle(double thetaBetweenBasisVectors);
+    void setBasesAngle(double thetaBetweenBasisVectors);
 
-	void setHorizontalBasisRadius(double radius);
+    void setHorizontalBasisRadius(double radius);
 
-	void setAngledBasisRadius(double radius);
+    void setAngledBasisRadius(double radius);
 
-	void setTileRotationAngle(double angleIn);
+    void setTileRotationAngle(double angleIn);
 
-	void setOrigin(Point<float> originPointIn);
+    void setOrigin(Point<double> originPointIn);
 
-	void scaleRotatedTileToBounds(bool doScaling, Rectangle<float> boundsIn = {}, bool centreInBounds = true);
+    void scaleRotatedTileToBounds(bool doScaling, Rectangle<double> boundsIn = {}, bool centreInBounds = true);
 
-	void setHorizontalBasisScalar(float scalarIn);
+    void setHorizontalBasisScalar(double scalarIn) { horizontalBasisScalar = scalarIn; }
 
-	void setAngledBasisScalar(float scalarIn);
+    void setAngledBasisScalar(double scalarIn) { angledBasisScalar = scalarIn; }
 
-	//=======================================================================
-	// Getters
+    //=======================================================================
+    // Getters
 
-	double getBasesAngle() const { return theta; }
+    double getBasesAngle() const { return theta; }
 
-	double getHorizontalBasisRadius() const { return radiusHorizontal; }
+    double getHorizontalBasisRadius() const { return radiusHorizontal; }
 
-	double getAngledBasisRadius() const { return radiusAngled; }
+    double getAngledBasisRadius() const { return radiusAngled; }
 
-	double getTileRotationAngle() const { return rotationAngle; }
+    double getTileRotationAngle() const { return rotationAngle; }
 
-	Point<float> getOrigin() const { return origin; }
+    Point<double> getOrigin() const { return origin; }
 
-	Rectangle<float> getGivenBounds() const { return givenBounds; }
+    /// <summary>
+    /// Returns the bounds passed in certain 'fitTilingTo' methods
+    /// </summary>
+    /// <returns></returns>
+    Rectangle<double> getGivenBounds() const { return givenBounds; }
 
-	bool isScalingToBounds() const { return scaleToFitBounds; }
+    bool isScalingToBounds() const { return scaleToFitBounds; }
 
-	float getHorizontalBasisScalar() const { return horizontalBasisScalar; }
+    float getHorizontalBasisScalar() const { return horizontalBasisScalar; }
 
-	float getAngledBasisScalar() const { return angledBasisScalar; }
+    float getAngledBasisScalar() const { return angledBasisScalar; }
 
-	//=======================================================================
-	// Calculations
+    //=======================================================================
+    // Calculations
 
-	virtual Array<Point<float>> transformPointsFromOrigin(const Array<Point<int>>& pointsIn) const;
+    virtual Array<Point<float>> transformPointsFromOrigin(const Array<Point<int>>& pointsIn, bool centreInBounds = false) const;
 
-	virtual Array<Point<float>> getPointsBetween(Point<int> horizontalRange, Point<int> verticalRange) const;
+    virtual Array<Point<float>> getPointsBetween(Point<int> horizontalRange, Point<int> verticalRange) const;
+
+    /// <summary>
+    /// Calculate properties of the hexagon tiling given certain parameters
+    /// </summary>
+    /// <param name="originPoint">The point on the tiling that represents (0,0) </param>
+    /// <param name="firstBasisPoint">A point on the tiling that represents a linearly independent vector in the direction spanning columns</param>
+    /// <param name="secondBasisPoint">A point on the tiling that represents a the sum of the first vector and a linearly independent vector in the direction spanning rows</param>
+    /// <param name="firstBasisIsColumn">Use rowBasisPoint as origin for the columnBasisPoiont</param>
+    /// <param name="columnBasisOffset">The number of units the column basis point is away from the origin.</param>
+    /// <param name="rowBasisOffset">The number of units the row basis point is away from the origin</param>
+    void fitTilingTo(
+        Point<float>        originPoint,
+        Point<float>        firstBasisPoint,
+        Point<float>        secondBasisPoint,
+        bool                firstBasisIsColumn = true,
+        int                 columnBasisOffset = 1,
+        int                 rowBasisOffset = 1
+    );
+
+public:
+
+    static Point<double> getPointFromOrigin(
+        double columnAngleX, double columnAngleY, double rowAngleX, double rowAngleY,
+        double columnUnit, double rowUnit, double columnOffset, double rowOffset
+    );
 
 protected:
 
-	virtual AffineTransform getTileMatrix() const;
+    virtual AffineTransform getTileMatrix() const;
 
-	virtual void recalculateBasisComponents();
+    virtual void recalculateBasisComponents();
 
-	virtual void recalculateTileTransform(Point<float> originToUse);
+    virtual void recalculateTileTransform(Point<double> originToUse);
 
-protected:
+    virtual Rectangle<double> findSmallestBounds(int numColumns, int numRows, bool withTransformations = true);
 
-	//=======================================================================
-	// Parameters
+    //=======================================================================
+    // Properties based on parameters
 
-	double theta = float_Pi * 0.5;
-	double radiusHorizontal = 1.0;
-	double radiusAngled = 1.0;
-	Point<float> origin;
-	
-	double rotationAngle = 0.0;
-	bool scaleToFitBounds = false;
-	Rectangle<float> givenBounds;
+    double rotationScalar = 1.0f;
+    AffineTransform transform = AffineTransform();
 
-	float horizontalBasisScalar = 1.0f;
-	float angledBasisScalar     = 1.0f;
+    double angleCos = 0;
+    double angleSin = 0;
+    
+    double angledXComponent = 0;
+    double angledYComponent = 0;
 
-	//=======================================================================
-	// Properties based on parameters
+    Rectangle<double> lastCalculatedBounds;
+    AffineTransform tileTransform;
 
-	float rotationScalar = 1.0f;
-	AffineTransform transform = AffineTransform();
+    //=======================================================================
+    // Parameters
 
-	double angleCos = 0;
-	double angleSin = 0;
-	
-	double angledXComponent = 0;
-	double angledYComponent = 0;
+    double radiusHorizontal = 1.0;
+    double radiusAngled = 1.0;
+    double rotationAngle = 0.0;
+    Rectangle<double> givenBounds;
 
-	AffineTransform tileTransform;
+private:
+
+    double theta = float_Pi * 0.5;
+    Point<double> origin;
+
+    bool scaleToFitBounds = false;
+
+    double horizontalBasisScalar = 1.0;
+    double angledBasisScalar = 1.0;
 };
 
-class HexTile : public LinearTiling
+//==============================================================================
+// Used to calculate the center point coordinates for a hexagon tiling.
+// This class treats a standard hexagon with a vertex aligned with the y-axis.
+
+class HexagonalTiling : public LinearTiling
 {
 public:
 
-	HexTile() {	recalculateHexagonComponents(); };
-	
-	HexTile(Point<float> origin,
-		double radius, 
-		double margin           = 0.0, 
-		double tileRotation     = 0,
-		float  horizontalScalar	= 1.0f,
-		float  verticalScalar   = 1.0f
-	) : hexagonMargin(margin)
-	{
-		setRadius(radius);
-		setTileRotationAngle(tileRotation);
-		setHorizontalBasisScalar(horizontalScalar);
-		setAngledBasisScalar(verticalScalar);
-	}
+    HexagonalTiling() { recalculateHexagonComponents(); };
+    
+    HexagonalTiling(Point<double> origin,
+        double radius, 
+        double margin           = 0.0, 
+        double tileRotation     = 0,
+        double horizontalScalar = 1.0,
+        double verticalScalar   = 1.0
+    ) : hexagonMargin(margin)
+    {
+        setRadius(radius);
+        setTileRotationAngle(tileRotation);
+        setHorizontalBasisScalar(horizontalScalar);
+        setAngledBasisScalar(verticalScalar);
+    }
 
-	void setRadius(double radius);
+    void setRadius(double radius);
 
-	void setMargin(double margin);
+    void setMargin(double margin);
 
-	double getRadius() const { return outerRadius; }
+    double getRadius(bool scaled = true) const { return (scaled) ? rotationScalar * outerRadius : outerRadius; }
 
-	double getMargin() const { return hexagonMargin; }	
+    double getMargin(bool scaled = true) const { return (scaled) ? rotationScalar * hexagonMargin : hexagonMargin; }
 
-private:
+    void setBasesAngle(double) = delete;
 
-	void recalculateHexagonComponents();
+    void setHorizontalBasisRadius(double) = delete;
 
-	void recalculateBasisComponents() override;
+    void setAngledBasisRadius(double) = delete;
 
-private:
+    //==============================================================================
+    // Helper functions to fit a tile to certain specifications
 
-	double outerRadius = 1.0;
-	double hexagonMargin = 0.0;
-};
+    /// <summary>
+    /// Calculate properties of the hexagon tiling given bounds, margin size, and rotation
+    /// </summary>
+    /// <param name="boundsIn"></param>
+    /// <param name="numColumns"></param>
+    /// <param name="numRows"></param>
+    /// <param name="marginSize"></param>
+    /// <param name="rotateAngle"></param>
+    /// <param name="scaleToFitRotation"></param>
+    /// <param name="radiusScalarIn"></param>
+    /// <param name="lateralScalarIn"></param>
+    void fitTilingTo(
+        Rectangle<double> boundsIn, 
+        int               numColumns,
+        int               numRows,
+        double            marginSize = 0.0f, 
+        double            rotateAngle = 0.0f, 
+        bool              scaleToFitRotation = true,
+        double            horizontalScalarIn = 1.0f,
+        double            diagonalScalarIn = 1.0f
+    );
 
-class HexagonTilingGeometry
-{
-public:
+    Rectangle<double> findSmallestBounds(int numColumns, int numRows, bool withTransformations = true) override;
 
-	/// <summary>
-	/// Creates a basic hexagon tiling with a 1x1 bounding box set at (0, 0)
-	/// </summary>
-	HexagonTilingGeometry() {};
-
-	void setRadius(double radiusIn) { radius = radiusIn; }
-
-	void setMargin(double marginIn) { margin = marginIn; }
-
-	void setRotationAngle(double angleIn) { angle = angleIn; recalculateTransform(startingCentre.toFloat(), scaleToFit); }
-
-	void setBounds(Rectangle<float> boundsIn) { bounds = boundsIn; }
-
-	void scaleToFitBounds(bool doScaling) { scaleToFit = doScaling; }
-
-	void setOriginPoint(Point<float> originPoint) { startingCentre = originPoint.toDouble(); }
-
-	void setSkewed(bool tilingIsSkewed) { useSkewedBasis = tilingIsSkewed; }
-
-	void setColumnAngle(double angleIn);
-
-	void setRowAngle(double angleIn);
-
-	/// <summary>
-	//  Stretches tiling in the horizontal direction, along the axis where a line extended from the hexagon centres are perpendicular to an edge at 3 and 9 o'clock
-	/// </summary>
-	/// <param name="lateralScalarIn"></param>
-	void setHorizontalScalar(float scalarIn) { horizontalScalar = scalarIn; }
-
-
-	/// <summary>
-	/// Stretches tiling in the vertical direction, along the axis where a line extended from the hexagon centres meet a vertex at 12 o'clock
-	/// </summary>
-	/// <param name="radiusScalarIn"></param>
-	void setVerticalScalar(float scalarIn) { verticalScalar = scalarIn; }
-
-	//==============================================================================
-	// Helper functions to fit a tile to certain specifications
-
-	/// <summary>
-	/// Calculate properties of the hexagon tiling given bounds, margin size, and rotation
-	/// </summary>
-	/// <param name="boundsIn"></param>
-	/// <param name="numColumns"></param>
-	/// <param name="numRows"></param>
-	/// <param name="marginSize"></param>
-	/// <param name="rotateAngle"></param>
-	/// <param name="scaleToFitRotation"></param>
-	/// <param name="radiusScalarIn"></param>
-	/// <param name="lateralScalarIn"></param>
-	void fitTilingTo(
-		Rectangle<float>	boundsIn, 
-		int					widestRow,
-		int					longestColumn,
-		float				marginSize, 
-		float				rotateAngle, 
-		bool				scaleToFitRotation = true,
-		float				radiusScalarIn = 1.0f,
-		float				lateralScalarIn = 1.0f
-	);
-
-	/// <summary>
-	/// Calculate properties of the hexagon tiling given certain parameters
-	/// </summary>
-	/// <param name="firstKeyCentre"></param>
-	/// <param name="secondKeyCentre"></param>
-	/// <param name="rowStepsFirstToSecond"></param>
-	/// <param name="thirdKeyCentre"></param>
-	/// <param name="colStepsSecondToThird"></param>
-	/// <param name="correctionAngle"></param>
-	void fitSkewedTiling(
-		Point<float>		firstKeyCentre,
-		Point<float>		secondKeyCentre,
-		int					rowStepsFirstToSecond,
-		Point<float>		thirdKeyCentre,
-		int					colStepsSecondToThird,
-		bool				calculateAngles = true
-	);
-
-	// TODO: Generalized hex plane for any shapes
-	//Array<Point<float>> getHexagonCentres(const Point<float> originCentre, const Array<Array<int>> stepsFromCentre) const;
-
-	Array<Point<float>> getHexagonCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave = 0, int numOctavesIn = 1) const;
-
-	Array<Point<float>> getHexagonCentresSkewed(const TerpstraBoardGeometry& boardGeometry, int startingOctave, int numOctavesIn) const;
-	
-	//==============================================================================
-	// Property getters
-
-	/// <summary>
-	/// Returns the circumradius of a hexagon
-	/// </summary>
-	/// <returns></returns>
-	float getKeySize(bool scaled = true) const;
-
-	/// <summary>
-	/// Returns the smallest rectangle containing tiling based on the last time centres were requested
-	/// </summary>
-	/// <param name="withTransformation">If true, the bounds will be after the transformation</param>
-	/// <returns></returns>
-	Rectangle<float> getRecentTileBounds(bool withTransformation = true);
-
-	double getRadius() const { return radius; }
-
-	double getLateral() const { return radius * HEXRADIUSTOLATERAL; }
-
-	double getRadiusScaled() const { return radius * verticalScalar; }
-
-	double getLateralScaled() const { return getLateral() * horizontalScalar; }
-
-	double getMargin() const { return margin; }
-
-	Point<float> getCurrentOriginPoint() const { return startingCentre.toFloat(); }
-
-	AffineTransform getCurrentTransformation() const { return transform; }
-
-	float getCurrentAngle() const { return angle; }
-
-	float getHorizontalScalar() const { return horizontalScalar; };
-
-	float getVerticalScalar() const { return verticalScalar; }
-
-	double getColumnAngleBasis() const { return columnBasisAngle; }
-
-	double getRowAngleBasis() const { return rowBasisAngle; }
-
-	//==============================================================================
-	
-	double findBestRadius(int widestRow, int longestColumn);
-
-	Rectangle<float> findSkewedUnitBounds();
-
-private:
-
-	void recalculateTransform(Point<float> rotateOrigin, bool centreAndScale);
-
-	// Finds the smallest rectangle based on tiling with board geometry since it may be smaller than bounds passed in
-	Rectangle<float> calculateSmallestBounds(int widestRowSize, int longestColumnSize) const;
-
-	// Generalized ones
-	//Array<Point<float>> calculateCentres(const TerpstraBoardGeometry& boardGeometry, Point<float> firstKeyCentre);
-
-	Array<Point<float>> calculateCentres(const TerpstraBoardGeometry& boardGeometry, int startingOctave = 0, int numOctaves = 1) const;
-
-	Array<Point<float>> calculateCentresSkewed(const TerpstraBoardGeometry& boardGeometry, int startingOctave = 0, int numOctaves = 1) const;
-
-	static int verticalToSlantOffset(int rowNum, int offsetIn);
+    static Rectangle<double> findSmallestBounds(int numColumns, int numRows, double radius, double rotationAngle);
+    static Rectangle<double> findSmallestBounds(int numColumns, int numRows, double radius, double lateral, double rotationAngle);
 
 public:
 
-	static double calculateTileWidth(int numColumns, double radiusInside, double margin);
-
-	static double calculateTileHeight(int numRows, double radiusBounding, double margin);
-
-	static double distanceStepsAwayX(double radiusInside, double margin, int stepsX, int stepsY);
-
-	static double distanceStepsAwayY(double radiusBounding, double margin, int stepsY);
-
-	static Point<double> getSkewedPoint(
-		double columnAngleX, double columnAngleY, 
-		double rowAngleX, double rowAngleY, 
-		double colUnit, double rowUnit, int columnOffset, int rowOffset
-	);
+    static double findBestRadius(Rectangle<double> boundsIn, int numColumns, int numRows);
 
 private:
 
-	//=======================================================================
-	// Parameters
-	
-	Rectangle<float> bounds = Rectangle<float>(0, 0, 1, 1);
-	double radius = 0.5;
+    void recalculateHexagonComponents();
 
-	double margin = 0.0;
-	double angle = 0.0;
+    void recalculateBasisComponents() override;
 
-	bool scaleToFit = false;
-	bool useSkewedBasis = false;
+private:
 
-	float horizontalScalar = 1.0f;
-	float verticalScalar = 1.0f;
-
-	double columnBasisAngle = 0.0;
-	double rowBasisAngle = -double_Pi / 3.0;
-
-	Point<double> startingCentre = Point<double>(0.4330127, 0.5);
-
-	//=======================================================================
-	// Properties based on parameters
-
-	float rotationScalar = 1.0f;
-	AffineTransform transform = AffineTransform();
-
-	double columnAngleCos = 0;
-	double columnAngleSin = 0;
-	double    rowAngleCos = 0;
-	double    rowAngleSin = 0;
-
-	double columnXComponent = 0;
-	double columnYComponent = 0;
-	double    rowXComponent = 0;
-	double    rowYComponent = 0;
-
-	Rectangle<float> tileBounds;        // Smallest rectangle containing tiles pre-transformation
-	Rectangle<float> transformedBounds; // Smallest rectangle containing tiles post-transformation
+    double outerRadius = 1.0;
+    double lateral = HEXRADIUSTOLATERAL;
+    double hexagonMargin = 0.0;
 };
