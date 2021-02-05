@@ -171,7 +171,7 @@ private:
 
 	OwnedArray<OctaveBoard> octaveBoards;
 
-	int			currentSetSelection;
+	int currentSetSelection;
 
 	std::unique_ptr<AllKeysDisplay> allKeysDisplay;
 

@@ -106,7 +106,7 @@ private:
     int					currentSingleKeySelection;
 
     // Key edit positioning
-    HexTile tilingGeometry;
+    HexagonalTiling tilingGeometry;
 
     //===========================================================================
     // Style Helpers

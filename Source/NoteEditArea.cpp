@@ -129,9 +129,6 @@ void NoteEditArea::paint (juce::Graphics& g)
     //[UserPaint] Add your own custom painting code here..
 	g.setColour(backgroundColour);
 	g.fillRoundedRectangle(contentBackground, roundedCornerLayout);
-
-	//g.setColour(Colours::pink);
-	//g.drawRect(keyEditBounds);
     //[/UserPaint]
 }
 
@@ -154,7 +151,7 @@ void NoteEditArea::resized()
 	editFunctionsTab->setTabBarDepth(assignTabDepthInContent * contentBackground.getHeight());
 
 	resizeLabelWithHeight(labelWindowTitle.get(), roundToInt(octaveBoardSelectorTab->getHeight() * assignLabelTabDepthHeight));
-	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) / 2.0f));
+	labelWindowTitle->setTopLeftPosition(roundToInt(getWidth() * assignLabelMarginX), roundToInt((octaveTabsArea.getHeight() - labelWindowTitle->getHeight()) * 0.5f));
 
 	keyEditBounds.setBounds(
 		getWidth() * keyEditMarginX, contentBackground.getHeight() * assignMarginYInContent + contentBackground.getY(),
@@ -169,7 +166,7 @@ void NoteEditArea::resized()
 
 	// Single Key fields
 
-	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
+	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() * 0.5);
 
 	tilingGeometry.fitTilingTo(
 		keyEditBounds.toDouble(),

@@ -233,10 +233,7 @@ Image AllKeysDisplay::redrawAllKeys(bool returnScaled)
 				g.setColour(Colour());
 
 			centre = allKeyCentres[keyIndex];
-			Path p;
-			p.addPolygon(centre, 6, halfKeyWidth, tilingGeometry.getTileRotationAngle());
-			g.fillPath(p);
-			//g.drawImageAt(keyShape, centre.x - halfKeyWidth, centre.y - halfKeyHeight, true);
+			g.drawImageAt(keyShape, centre.x - halfKeyWidth, centre.y - halfKeyHeight, true);
 			keyIndex++;
 		}
 	}
