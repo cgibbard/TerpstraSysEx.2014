@@ -42,25 +42,24 @@ NoteEditArea::NoteEditArea ()
 {
     //[Constructor_pre] You can add your own custom stuff here..;
     showIsomorphicMassAssign = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("IsomorphicMassAssign", false);
+
+
     //[/Constructor_pre]
 
 	editFunctionsTab.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
 	editFunctionsTab->setName("EditFunctionsTab");
-	editFunctionsTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
-	editFunctionsTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
 	addAndMakeVisible(editFunctionsTab.get());
 	editFunctionsTab->addTab(translate("ManualAssign"), juce::Colours::lightgrey, new SingleNoteAssign(), true);
 	editFunctionsTab->setCurrentTabIndex(0);
 	editFunctionsTab->setIndent(0);
 	editFunctionsTab->setOutline(0);
-	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
 
-  labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
-	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
-  addAndMakeVisible (labelWindowTitle.get());
+	labelWindowTitle.reset (new juce::Label ("labelWindowTitle", translate("AssignKeys")));
+	
+	addAndMakeVisible (labelWindowTitle.get());
 
   //[UserPreSize]
-
+	
 	if (showIsomorphicMassAssign)
 		editFunctionsTab->addTab(TRANS("Isomorphic Assign"), juce::Colours::lightgrey, new IsomorphicMassAssign(), true);
 
@@ -83,6 +82,13 @@ NoteEditArea::NoteEditArea ()
 		terpstraKeyFields[i]->addMouseListener(this, true);
 	}
 
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::outlineColourId, Colour());
+	editFunctionsTab->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+	editFunctionsTab->getTabbedButtonBar().getProperties().set(LumatoneEditorStyleIDs::tabbedButtonBarDepthScalar, 5.0f / 12.0f);
+
+	labelWindowTitle->setFont(LumatoneEditorFonts::UniviaProBold());
+
+	octaveCoordinates = boardGeometry.getOctaveCoordinates();
     //[/UserPreSize]
 
 
@@ -165,18 +171,24 @@ void NoteEditArea::resized()
 
 	keyEditBounds = contentBackground.withLeft(assignControlsBounds.getRight() + assignControlsBounds.getX() / 2);
 
-	tilingGeometry.fitTilingTo(
-		keyEditBounds,
-		boardGeometry.getMaxHorizontalLineSize(),
-		boardGeometry.horizontalLineCount(),
-		round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
-		TERPSTRASINGLEKEYROTATIONANGLE, true
-	);
+	//tilingGeometry.fitTilingTo(
+	//	keyEditBounds,
+	//	boardGeometry.getMaxHorizontalLineSize(),
+	//	boardGeometry.horizontalLineCount(),
+	//	round(keyEditBounds.getWidth() * singleKeyMarginFromWidth),
+	//	TERPSTRASINGLEKEYROTATIONANGLE, true
+	//);
 
-	Array<Point<float>> keyCentres = tilingGeometry.getHexagonCentres(boardGeometry);
+	tilingGeometry.setRadius(round(getWidth() * 0.02f));
+	tilingGeometry.setMargin(5);
+	tilingGeometry.setOrigin(keyEditBounds.getTopLeft());
+	//tilingGeometry.scaleRotatedTileToBounds(true, keyEditBounds);
+	tilingGeometry.setTileRotationAngle(TERPSTRASINGLEKEYROTATIONANGLE);
+
+	Array<Point<float>> keyCentres = tilingGeometry.transformPointsFromOrigin(octaveCoordinates);//tilingGeometry.getHexagonCentres(boardGeometry);
 	jassert(keyCentres.size() == TerpstraSysExApplication::getApp().getOctaveBoardSize());
 
-	float keySize = tilingGeometry.getKeySize();
+	float keySize = tilingGeometry.getRadius() * 2; // tilingGeometry.getKeySize();
 	
 	int keyIndex = 0;
 	for (keyIndex = 0; keyIndex < keyCentres.size(); keyIndex++)

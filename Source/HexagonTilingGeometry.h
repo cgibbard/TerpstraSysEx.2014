@@ -17,7 +17,161 @@
 // This class treats a standard hexagon with a vertex aligned with the y-axis.
 // Added a bunch of "skew" methods to solve the render overlay system, but I will separate that out at some point.
 
-#define LATERALRADIUSRATIO   0.8660254037844 // sqrt(3) / 2, proportional to radius, the length between the center and a vertex)
+#define HEXRADIUSTOLATERAL 0.8660254037844 // sqrt(3) / 2, proportional to radius, the length between the center and a vertex)
+#define HEXBASESANGLE      1.0471975511966
+
+class LinearTiling
+{
+public:
+
+	// Square grid by default
+	LinearTiling() { recalculateBasisComponents(); }
+
+	LinearTiling(
+		double          basesAngle, 
+		double          horizontalRadius, 
+		double          verticalRadius, 
+		Point<float>    originIn = Point<float>(), 
+		double          tileRotationAngle = 0.0, 
+		float           horizontalScalar = 1.0f, 
+		float           verticalScalar = 1.0f
+	) : 
+		radiusHorizontal(horizontalRadius),
+		origin(originIn),
+		horizontalBasisScalar(horizontalScalar),
+		angledBasisScalar(verticalScalar)
+	{
+		radiusAngled = verticalRadius;
+		setBasesAngle(basesAngle);
+		setTileRotationAngle(tileRotationAngle);
+	};
+
+	//=======================================================================
+	// Setters
+
+	void setBasesAngle(double thetaBetweenBasisVectors);
+
+	void setHorizontalBasisRadius(double radius);
+
+	void setAngledBasisRadius(double radius);
+
+	void setTileRotationAngle(double angleIn);
+
+	void setOrigin(Point<float> originPointIn);
+
+	void scaleRotatedTileToBounds(bool doScaling, Rectangle<float> boundsIn = {}, bool centreInBounds = true);
+
+	void setHorizontalBasisScalar(float scalarIn);
+
+	void setAngledBasisScalar(float scalarIn);
+
+	//=======================================================================
+	// Getters
+
+	double getBasesAngle() const { return theta; }
+
+	double getHorizontalBasisRadius() const { return radiusHorizontal; }
+
+	double getAngledBasisRadius() const { return radiusAngled; }
+
+	double getTileRotationAngle() const { return rotationAngle; }
+
+	Point<float> getOrigin() const { return origin; }
+
+	Rectangle<float> getGivenBounds() const { return givenBounds; }
+
+	bool isScalingToBounds() const { return scaleToFitBounds; }
+
+	float getHorizontalBasisScalar() const { return horizontalBasisScalar; }
+
+	float getAngledBasisScalar() const { return angledBasisScalar; }
+
+	//=======================================================================
+	// Calculations
+
+	virtual Array<Point<float>> transformPointsFromOrigin(const Array<Point<int>>& pointsIn) const;
+
+	virtual Array<Point<float>> getPointsBetween(Point<int> horizontalRange, Point<int> verticalRange) const;
+
+protected:
+
+	virtual AffineTransform getTileMatrix() const;
+
+	virtual void recalculateBasisComponents();
+
+	virtual void recalculateTileTransform(Point<float> originToUse);
+
+protected:
+
+	//=======================================================================
+	// Parameters
+
+	double theta = float_Pi * 0.5;
+	double radiusHorizontal = 1.0;
+	double radiusAngled = 1.0;
+	Point<float> origin;
+	
+	double rotationAngle = 0.0;
+	bool scaleToFitBounds = false;
+	Rectangle<float> givenBounds;
+
+	float horizontalBasisScalar = 1.0f;
+	float angledBasisScalar     = 1.0f;
+
+	//=======================================================================
+	// Properties based on parameters
+
+	float rotationScalar = 1.0f;
+	AffineTransform transform = AffineTransform();
+
+	double angleCos = 0;
+	double angleSin = 0;
+	
+	double angledXComponent = 0;
+	double angledYComponent = 0;
+
+	AffineTransform tileTransform;
+};
+
+class HexTile : public LinearTiling
+{
+public:
+
+	HexTile() {	recalculateHexagonComponents(); };
+	
+	HexTile(Point<float> origin,
+		double radius, 
+		double margin           = 0.0, 
+		double tileRotation     = 0,
+		float  horizontalScalar	= 1.0f,
+		float  verticalScalar   = 1.0f
+	) : hexagonMargin(margin)
+	{
+		setRadius(radius);
+		setTileRotationAngle(tileRotation);
+		setHorizontalBasisScalar(horizontalScalar);
+		setAngledBasisScalar(verticalScalar);
+	}
+
+	void setRadius(double radius);
+
+	void setMargin(double margin);
+
+	double getRadius() const { return outerRadius; }
+
+	double getMargin() const { return hexagonMargin; }	
+
+private:
+
+	void recalculateHexagonComponents();
+
+	void recalculateBasisComponents() override;
+
+private:
+
+	double outerRadius = 1.0;
+	double hexagonMargin = 0.0;
+};
 
 class HexagonTilingGeometry
 {
@@ -127,7 +281,7 @@ public:
 
 	double getRadius() const { return radius; }
 
-	double getLateral() const { return radius * LATERALRADIUSRATIO; }
+	double getLateral() const { return radius * HEXRADIUSTOLATERAL; }
 
 	double getRadiusScaled() const { return radius * verticalScalar; }
 
