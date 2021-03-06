@@ -585,7 +585,7 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
 	// Velocity curve config
-	getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+	//getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
 }

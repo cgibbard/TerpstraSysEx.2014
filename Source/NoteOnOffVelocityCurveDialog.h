@@ -21,7 +21,7 @@ public:
 	~NoteOnOffVelocityCurveDialog() override;
 
 protected:
-	virtual float beamWidth(int xPos) override;
+//	virtual float beamWidth(int xPos) override;
 
 };
 

@@ -104,7 +104,7 @@ class TerpstraKeyMapping
 public:
 	TerpstraKeyMapping();
 
-	void clearVelocityIntervalTable();
+	//void clearVelocityIntervalTable();
 	void clearAll();
 
 	void fromStringArray(const StringArray& stringArray);
@@ -113,8 +113,8 @@ public:
 	// The colours that are used
 	//SortedSet<TerpstraKey::COLOURTYPE> getUsedColours();
 
-	// Ticks count of a position in the celocity interval table
-	static int ticksCountFromXPos(int xPos) { return xPos * 16; }
+	// Ticks count of a position in the velocity interval table
+	//static int ticksCountFromXPos(int xPos) { return xPos * 16; }
 
 public:
 	// Key configuration
@@ -127,7 +127,7 @@ public:
 	int expressionControllerSensivity;
 
 	// Velocity curves
-	int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
+	//int velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE];
 
 	TerpstraVelocityCurveConfig	noteOnOffVelocityCurveConfig;
 	TerpstraVelocityCurveConfig faderConfig;
