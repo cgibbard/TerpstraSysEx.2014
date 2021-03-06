@@ -204,8 +204,8 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
         {
             //sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
             //sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
-            sysExData[5 + 2*i] = VELOCITYINTERVALTABLESIZE - i >> 6;
-            sysExData[6 + 2*i] = VELOCITYINTERVALTABLESIZE - i & 0x3f;
+            sysExData[5 + 2*i] = i + 1 >> 6;
+            sysExData[6 + 2*i] = i + 1 & 0x3f;
         }
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
