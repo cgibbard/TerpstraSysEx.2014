@@ -191,6 +191,11 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 {
 	if (midiOutput != nullptr)
 	{
+        // DEV DEBUG
+        TerpstraSysExApplication::getApp().getPropertiesFile()->reload();
+        const int maxTicks = TerpstraSysExApplication::getApp().getPropertiesFile()->getValue("MaxTickValue").getIntValue();
+        Array<int> ticksOut;
+        
 		unsigned char sysExData[259];
 		sysExData[0] = (manufacturerId >> 16) & 0xff;
 		sysExData[1] = (manufacturerId >> 8) & 0xff;
@@ -204,9 +209,18 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
         {
             //sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
             //sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
-            sysExData[5 + 2*i] = i + 1 >> 6;
-            sysExData[6 + 2*i] = i + 1 & 0x3f;
+            int tickValue =  maxTicks / (double) VELOCITYINTERVALTABLESIZE * i;
+            ticksOut.add(tickValue);
+            sysExData[5 + 2*i] = tickValue >> 6;
+            sysExData[6 + 2*i] = tickValue & 0x3f;
         }
+
+        String ticks = "";
+        for (auto t : ticksOut)
+            ticks += String(t) + " ";
+        
+        TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("VelocityIntervalTable", ticks);
+        TerpstraSysExApplication::getApp().getPropertiesFile()->save();
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
 		sendMessageNow(msg);

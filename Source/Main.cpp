@@ -102,6 +102,10 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	reloadColourPalettes();
 
 	// State of main window will be read from properties file when main window is created
+    
+    // DEV DEBUG Velocity Interval Table max tick value
+    if (!propertiesFile->containsKey("MaxTickValue"))
+        propertiesFile->setValue("MaxTickValue", 127);
 }
 
 //==============================================================================
@@ -584,8 +588,8 @@ void TerpstraSysExApplication::sendCurrentConfigurationToDevice()
 	getMidiDriver().sendInvertFootController(theConfig.invertFootController);
 	getMidiDriver().sendExpressionPedalSensivity(theConfig.expressionControllerSensivity);
 
-	// Velocity curve config
-	//getMidiDriver().sendVelocityIntervalConfig(theConfig.velocityIntervalTableValues);
+	// Velocity curve config -- TODO REMOVE DEV DEBUG
+    getMidiDriver().sendVelocityIntervalConfig(nullptr);
 
 	((MainContentComponent*)(mainWindow->getContentComponent()))->getCurvesArea()->sendConfigToController();
 }

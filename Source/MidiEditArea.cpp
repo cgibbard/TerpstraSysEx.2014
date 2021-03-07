@@ -254,17 +254,14 @@ void MidiEditArea::resized()
 
 	if (isConnected)
 	{
-		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight));
+		resizeLabelWithHeight(lblEditMode.get(), round(h* editModeHeight), 1.0f, " ");
 		lblEditMode->setTopLeftPosition(
 			lumatoneLabelBounds.getRight() + round(w * editModeX),
 			round((h - lblEditMode->getHeight()) * 0.5f)
 		);
 
 		liveEditorBtn->setSize(round(w * liveEditButtonWidth), round(h* editModeButtonHeight));
-		liveEditorBtn->setTopLeftPosition(
-			lumatoneLabelBounds.getRight() + round(w * editModeButtonX),
-			round((h - liveEditorBtn->getHeight()) * 0.5f)
-		);
+		liveEditorBtn->setTopLeftPosition(lblEditMode->getRight(), round((h - liveEditorBtn->getHeight()) * 0.5f));
 
 		offlineEditorBtn->setBounds(
 			liveEditorBtn->getRight(), liveEditorBtn->getY(), round(w * offlineEditButtonWidth), liveEditorBtn->getHeight()
