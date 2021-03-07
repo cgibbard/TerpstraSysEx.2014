@@ -21,7 +21,7 @@ public:
 	~NoteOnOffVelocityCurveDialog() override;
 
 protected:
-	virtual float beamWidth(int xPos) override;
+//	virtual float beamWidth(int xPos) override;
 
 };
 
@@ -35,4 +35,10 @@ class AftertouchVelocityCurveDialog : public VelocityCurveDlgBase
 {
 public:
 	AftertouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch) {}
+};
+
+class LumatouchVelocityCurveDialog : public VelocityCurveDlgBase
+{
+public:
+	LumatouchVelocityCurveDialog() : VelocityCurveDlgBase(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch) {}
 };

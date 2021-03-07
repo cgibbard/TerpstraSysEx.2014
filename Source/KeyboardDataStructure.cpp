@@ -92,6 +92,12 @@ TerpstraVelocityCurveConfig::TerpstraVelocityCurveConfig(TerpstraVelocityCurveCo
 		editStrategy = EDITSTRATEGYINDEX::freeDrawing;
 		break;
 
+	case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+		jassert(sizeof(DefaulLumatouchVelocityTable) == sizeof(velocityValues));
+		memmove(velocityValues, DefaulLumatouchVelocityTable, sizeof(DefaulLumatouchVelocityTable));
+		editStrategy = EDITSTRATEGYINDEX::freeDrawing;
+		break;
+
 	case TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff:
 	default:
 	{
@@ -216,15 +222,15 @@ TerpstraKeyMapping::TerpstraKeyMapping()
 {
 	clearAll();
 }
-
-void TerpstraKeyMapping::clearVelocityIntervalTable()
-{
-	// Default interval table: equal division
-	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-	{
-		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
-	}
-}
+//
+//void TerpstraKeyMapping::clearVelocityIntervalTable()
+//{
+//	// Default interval table: equal division
+//	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+//	{
+//		velocityIntervalTableValues[i] = ticksCountFromXPos(i + 1);
+//	}
+//}
 
 void TerpstraKeyMapping::clearAll()
 {
@@ -237,10 +243,11 @@ void TerpstraKeyMapping::clearAll()
 	invertFootController = false;
 	expressionControllerSensivity = 0;
 
-	clearVelocityIntervalTable();
+	//clearVelocityIntervalTable();
 	noteOnOffVelocityCurveConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff);
 	faderConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::fader);
 	afterTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch);
+	lumaTouchConfig = TerpstraVelocityCurveConfig(TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch);
 }
 
 void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
@@ -359,24 +366,24 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 			expressionControllerSensivity = currentLine.substring(pos1 + 18).getIntValue();
 		}
 		// Velocity curve config
-		else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
-		{
-			String intervalTableString = currentLine.substring(pos1 + 18);
-			StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
-			if (intervalTableValueArray.size() > 0)
-			{
-				jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
+		//else if ((pos1 = currentLine.indexOf("VelocityIntrvlTbl=")) >= 0)
+		//{
+		//	String intervalTableString = currentLine.substring(pos1 + 18);
+		//	StringArray intervalTableValueArray = StringArray::fromTokens(intervalTableString, false);
+		//	if (intervalTableValueArray.size() > 0)
+		//	{
+		//		jassert(intervalTableValueArray.size() >= VELOCITYINTERVALTABLESIZE);
 
-				for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++)
-				{
-					velocityIntervalTableValues[x] = intervalTableValueArray[x].getIntValue();
-				}
-			}
-			else
-			{
-				clearVelocityIntervalTable();
-			}
-		}
+		//		for (int x = 0; x < VELOCITYINTERVALTABLESIZE; x++)
+		//		{
+		//			velocityIntervalTableValues[x] = intervalTableValueArray[x].getIntValue();
+		//		}
+		//	}
+		//	else
+		//	{
+		//		clearVelocityIntervalTable();
+		//	}
+		//}
 		// Note on/off velocity configuration
 		else if ((pos1 = currentLine.indexOf("NoteOnOffVelocityCrvTbl=")) >= 0)
 		{
@@ -391,6 +398,11 @@ void TerpstraKeyMapping::fromStringArray(const StringArray& stringArray)
 		else if ((pos1 = currentLine.indexOf("afterTouchConfig=")) >= 0)
 		{
 			afterTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
+		}
+		// Lumatouch configuration
+		else if ((pos1 = currentLine.indexOf("LumaTouchConfig=")) >= 0)
+		{
+			lumaTouchConfig = TerpstraVelocityCurveConfig(currentLine.substring(pos1 + 17));
 		}
 	}
 
@@ -441,10 +453,10 @@ StringArray TerpstraKeyMapping::toStringArray()
 	result.add("ExprCtrlSensivity=" + String(expressionControllerSensivity));
 
 	// Velocity curve interval table
-	String intervalTableString;
-	for (auto intervalTableValue : velocityIntervalTableValues)
-		intervalTableString += String(intervalTableValue) + " ";
-	result.add("VelocityIntrvlTbl=" + intervalTableString);
+	//String intervalTableString;
+	//for (auto intervalTableValue : velocityIntervalTableValues)
+	//	intervalTableString += String(intervalTableValue) + " ";
+	//result.add("VelocityIntrvlTbl=" + intervalTableString);
 
 	// Note on/off velocity configuration
 	result.add("NoteOnOffVelocityCrvTbl=" + noteOnOffVelocityCurveConfig.createConfigStringForSaving());
@@ -452,6 +464,8 @@ StringArray TerpstraKeyMapping::toStringArray()
 	result.add("FaderConfig=" + faderConfig.createConfigStringForSaving());
 	// Aftertouch configuration
 	result.add("afterTouchConfig=" + afterTouchConfig.createConfigStringForSaving());
+	// Lumatouch configuration
+	result.add("LumaTouchConfig=" + lumaTouchConfig.createConfigStringForSaving());
 
 	return result;
 }

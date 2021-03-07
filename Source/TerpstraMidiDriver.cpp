@@ -159,7 +159,10 @@ void TerpstraMidiDriver::sendVelocityConfig(TerpstraVelocityCurveConfig::Velocit
             case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
                 sysExData[4] = SET_AFTERTOUCH_CONFIG;
                 break;
-            default:
+			case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+				sysExData[4] = SET_LUMATOUCH_CONFIG;
+				break;
+			default:
                 jassert(false);
                 break;
 		}
@@ -199,8 +202,10 @@ void TerpstraMidiDriver::sendVelocityIntervalConfig(int velocityIntervalTable[])
 		// Values are in reverse order (shortest ticks count is the highest velocity)
 		for ( int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
         {
-            sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
-            sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
+            //sysExData[5 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] >> 6;
+            //sysExData[6 + 2*i] = velocityIntervalTable[VELOCITYINTERVALTABLESIZE - 1 - i] & 0x3f;
+            sysExData[5 + 2*i] = i + 1 >> 6;
+            sysExData[6 + 2*i] = i + 1 & 0x3f;
         }
 
 		MidiMessage msg = MidiMessage::createSysExMessage(sysExData, 261);
@@ -222,7 +227,10 @@ void TerpstraMidiDriver::saveVelocityConfig(TerpstraVelocityCurveConfig::Velocit
         case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             sendSysEx(0, SAVE_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        default:
+		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+			sendSysEx(0, SAVE_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
+			break;
+		default:
             jassert(false);
             break;
     }
@@ -240,9 +248,12 @@ void TerpstraMidiDriver::resetVelocityConfig(TerpstraVelocityCurveConfig::Veloci
             sendSysEx(0, RESET_FADER_CONFIG, '\0', '\0', '\0', '\0');
             break;
         case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
-            sendSysEx(0, RESET_AFTERTOCUH_CONFIG, '\0', '\0', '\0', '\0');
+            sendSysEx(0, RESET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        default:
+		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+			sendSysEx(0, RESET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
+			break;
+		default:
             jassert(false);
             break;
     }
@@ -315,7 +326,10 @@ void TerpstraMidiDriver::sendVelocityConfigurationRequest(TerpstraVelocityCurveC
         case TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch:
             sendSysEx(0, GET_AFTERTOUCH_CONFIG, '\0', '\0', '\0', '\0');
             break;
-        default:
+		case TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch:
+			sendSysEx(0, GET_LUMATOUCH_CONFIG, '\0', '\0', '\0', '\0');
+			break;
+		default:
             jassert(false);
             break;
     }
@@ -435,7 +449,8 @@ bool TerpstraMidiDriver::messageIsTerpstraVelocityConfigReceptionMessage(const M
     return
         (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff && midiCmd == GET_VELOCITY_CONFIG) ||
         (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::fader && midiCmd == GET_FADER_CONFIG) ||
-        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG);
+        (velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::afterTouch && midiCmd == GET_AFTERTOUCH_CONFIG) ||
+		(velocityCurveType == TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch && midiCmd == GET_LUMATOUCH_CONFIG);
 }
 
 bool TerpstraMidiDriver::messageIsVelocityIntervalConfigReceptionMessage(const MidiMessage& midiMessage)

@@ -199,19 +199,19 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 			// ToDo General options
 
 			// Velocity curves
-			if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
-			{
-				// After the answer state byte there must be 254 bytes of data
-				// Values are in reverse order (shortest ticks count is the highest velocity)
-				jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
+			//if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsVelocityIntervalConfigReceptionMessage(midiMessage))
+			//{
+			//	// After the answer state byte there must be 254 bytes of data
+			//	// Values are in reverse order (shortest ticks count is the highest velocity)
+			//	jassert(midiMessage.getSysExDataSize() >= (6 + 2 * VELOCITYINTERVALTABLESIZE)); // ToDo display error otherwise
 
-				for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
-					this->mappingData.velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE - 1 - i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
+			//	for (int i = 0; i < VELOCITYINTERVALTABLESIZE; i++)
+			//		this->mappingData.velocityIntervalTableValues[VELOCITYINTERVALTABLESIZE - 1 - i] = (sysExData[6 + 2 * i] << 6) + sysExData[7 + 2 * i];
 
-				curvesArea->resized();
-				curvesArea->repaint();
-			}
-			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff))
+			//	curvesArea->resized();
+			//	curvesArea->repaint();
+			//}
+		    if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::noteOnNoteOff))
 			{
 				// After the answer state byte there must be 128 bytes of data
 				// Values are in reverse order (shortest ticks count is the highest velocity)
@@ -237,6 +237,15 @@ void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 				this->mappingData.afterTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
 				for (int x = 0; x < 128; x++)
 					this->mappingData.afterTouchConfig.velocityValues[x] = sysExData[6 + x];
+				curvesArea->loadFromMapping();
+			}
+			else if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraVelocityConfigReceptionMessage(midiMessage, TerpstraVelocityCurveConfig::VelocityCurveType::lumaTouch))
+			{
+				// After the answer state byte there must be 128 bytes of data
+				jassert(midiMessage.getSysExDataSize() >= 134); // ToDo display error otherwise
+				this->mappingData.lumaTouchConfig.editStrategy = TerpstraVelocityCurveConfig::EDITSTRATEGYINDEX::freeDrawing;
+				for (int x = 0; x < 128; x++)
+					this->mappingData.lumaTouchConfig.velocityValues[x] = sysExData[6 + x];
 				curvesArea->loadFromMapping();
 			}
 
