@@ -102,6 +102,9 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	reloadColourPalettes();
 
 	// State of main window will be read from properties file when main window is created
+
+	if (!propertiesFile->containsKey("MaxTickValue"))
+		propertiesFile->setValue("MaxTickValue", 127);
 }
 
 //==============================================================================
