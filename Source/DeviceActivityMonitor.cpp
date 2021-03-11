@@ -14,7 +14,6 @@
 
 DeviceActivityMonitor::DeviceActivityMonitor()
 {
-    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
 }
 
 DeviceActivityMonitor::~DeviceActivityMonitor()
@@ -27,6 +26,8 @@ void DeviceActivityMonitor::initializeDeviceDetection()
 {
     TerpstraMidiDriver& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
     monitorMessage = midiDriver.getSerialIdentityRequestMessage();
+    TerpstraSysExApplication::getApp().log("The pinging MIDI message is:");
+    TerpstraSysExApplication::getApp().log(monitorMessage.getDescription());
 
     if (deviceConnectionMode != DetectConnectionMode::lookingForDevice)
     {
@@ -40,15 +41,18 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     closeOutputDevices();
     pingOutputIndex = -1;
 
+    TerpstraSysExApplication::getApp().log("MIDI Output devices found:");
     for (auto outputDeviceInfo : MidiOutput::getAvailableDevices())
     {
         outputsToPing.add(MidiOutput::openDevice(outputDeviceInfo.identifier));
+        TerpstraSysExApplication::getApp().log("\t" + outputDeviceInfo.name + " - " + outputDeviceInfo.identifier);
     }
 
-
+    TerpstraSysExApplication::getApp().log("MIDI Input devices found:");
     for (auto inputDeviceInfo : MidiInput::getAvailableDevices())
     {
         auto input = inputsListening.add(MidiInput::openDevice(inputDeviceInfo.identifier, this));
+        TerpstraSysExApplication::getApp().log("\t" + inputDeviceInfo.name + " - " + inputDeviceInfo.identifier);
         input->start();
     }
 
@@ -60,7 +64,7 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     }
     else
     {
-        DBG("No input and output MIDI device combination could be made.");
+        TerpstraSysExApplication::getApp().log("No MIDI devices detected.");
         deviceDetectInProgress = false;
         startTimer(pingRoutineTimeoutMs);
     }
@@ -72,7 +76,7 @@ void DeviceActivityMonitor::pingNextOutput()
 
     if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
     {
-        DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
+        TerpstraSysExApplication::getApp().log("Pinging output " + outputsToPing[pingOutputIndex]->getName());
 
         outputsToPing[pingOutputIndex]->sendMessageNow(monitorMessage);
         startTimer(responseTimeoutMs);
@@ -81,7 +85,7 @@ void DeviceActivityMonitor::pingNextOutput()
     // Tried all devices, set timeout for next attempt
     else
     {
-        DBG("Detect device timeout.");
+        TerpstraSysExApplication::getApp().log("Detect device timeout.\n");
         deviceDetectInProgress = false;
         startTimer(pingRoutineTimeoutMs);
     }
@@ -92,6 +96,7 @@ void DeviceActivityMonitor::stopDeviceDetection()
     if (deviceConnectionMode == DetectConnectionMode::lookingForDevice)
     {
         deviceDetectInProgress = false;
+        TerpstraSysExApplication::getApp().log("Stopping detection.");
         stopTimer();
     }
 }
@@ -153,8 +158,8 @@ void DeviceActivityMonitor::testConnectionToDevices(int inputDeviceIndex, int ou
 
     if (pingOutputIndex >= 0 && pingOutputIndex < outputsToPing.size() && outputsToPing[pingOutputIndex])
     {
-        DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
-        TerpstraSysExApplication::getApp().getMidiDriver().sendMessageNow(monitorMessage);
+        TerpstraSysExApplication::getApp().log("Pinging " + outputsToPing[pingOutputIndex]->getName());
+        outputsToPing[outputDeviceIndex]->sendMessageNow(monitorMessage);
         startTimer(responseTimeoutMs);
     }
 }
@@ -166,10 +171,19 @@ void DeviceActivityMonitor::handleIncomingMidiMessage(MidiInput* source, const M
     if (isExpectedResponseType)
     {
         auto data = response.getSysExData();
+        
+        if (isSearchingForLumatone())
+        {
+            MessageManagerLock mml;
+            TerpstraSysExApplication::getApp().log("Received response from " + source->getName());
+            TerpstraSysExApplication::getApp().log(response.getDescription());
+        }
 
         // Is a duplicate of the request
         if (data[5] == TerpstraMidiDriver::TerpstraMIDIAnswerReturnCode::NACK)
         {
+            //if (isSearchingForLumatone())
+            //    TerpstraSysExApplication::getApp().log("Echo detected: ignoring virtual device");
             return;
         }
 
@@ -197,8 +211,9 @@ void DeviceActivityMonitor::checkDetectionStatus()
         if (expectedResponseReceived)
         {
             deviceDetectInProgress = false;
+            TerpstraSysExApplication::getApp().log("Connection to Lumatone confirmed.");
             sendChangeMessage();
-
+            
             if (checkConnectionOnInactivity)
             {
                 intializeConnectionLossDetection(); // TODO

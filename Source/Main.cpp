@@ -100,6 +100,9 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 	}
 
 	reloadColourPalettes();
+	
+	logger.reset(FileLogger::createDateStampedLogger("Logs", "LumatoneEditorSession_", ".txt", "Lumatone Editor Debug Log"));
+	logger->getLogFile().appendText("Logger initialized");
 
 	// State of main window will be read from properties file when main window is created
 }

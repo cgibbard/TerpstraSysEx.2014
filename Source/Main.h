@@ -91,6 +91,9 @@ public:
 
 	bool aboutTerpstraSysEx();
 
+	// DEBUG - was not having success with FileLogger::witeToLog
+	void log(String msg) const { logger->getLogFile().appendText('\n' + msg); }
+
 	//==============================================================================
 	/*
 	This class implements the desktop window that contains an instance of
@@ -178,6 +181,8 @@ private:
 	File						userPalettesDirectory;
 
 	Array<LumatoneEditorColourPalette> colourPalettes;
+
+	std::unique_ptr<FileLogger> logger;
 
 	// MIDI connection
 	TerpstraMidiDriver			midiDriver;

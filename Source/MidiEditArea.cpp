@@ -512,7 +512,7 @@ void MidiEditArea::changeListenerCallback(ChangeBroadcaster* source)
 		}
 		else
 		{
-			DBG("One or both device indicies returned are invalid");
+			TerpstraSysExApplication::getApp().log("One or both device indicies returned are invalid");
 			setConnectivity(false);
 		}
 	}
@@ -569,6 +569,9 @@ void MidiEditArea::refreshOutputDevicesAndSetSelected(int outputDeviceIndex, juc
 
 void MidiEditArea::midiMessageReceived(const MidiMessage& midiMessage)
 {
+	MessageManagerLock mml;
+	TerpstraSysExApplication::getApp().log("Message received: " + midiMessage.getDescription());
+
 	if (midiMessage.getSysExDataSize() < 6)
 	{
 		errorVisualizer.setErrorLevel(
