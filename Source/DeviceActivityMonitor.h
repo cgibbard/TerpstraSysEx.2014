@@ -112,7 +112,7 @@ private:
     TerpstraMidiDriver*     midiDriver;
 
     DetectConnectionMode    deviceConnectionMode   = DetectConnectionMode::noDeviceMonitoring;
-    bool                    deviceDetectInProgress = false;
+    std::atomic<bool>       deviceDetectInProgress;
 
     const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
@@ -128,10 +128,10 @@ private:
     
     bool                    detectDevicesIfDisconnected = true;
     bool                    checkConnectionOnInactivity = true;
-    bool                    waitingForTestResponse = false;
 
     MidiMessage             monitorMessage;
-    bool                    expectedResponseReceived = false;
+    std::atomic<bool>       waitingForTestResponse;
+    std::atomic<bool>       expectedResponseReceived;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeviceActivityMonitor)
 };
