@@ -333,7 +333,7 @@ void TerpstraMidiDriver::sendVelocityIntervalConfigRequest()
     sendSysEx(0, GET_VELOCITY_INTERVALS, '\0', '\0', '\0', '\0');
 }
 
-void TerpstraMidiDriver::sendSerialIdentityRequest()
+void TerpstraMidiDriver::sendGetSerialIdentityRequest()
 {
     sendSysEx(0, GET_SERIAL_IDENTITY, '\0', '\0', '\0', '\0');
 }
@@ -383,6 +383,10 @@ void TerpstraMidiDriver::sendSysEx(int boardIndex, unsigned char cmd, unsigned c
 	if (midiOutput != nullptr & currentSysExSendingMode == sysExSendingMode::liveEditor)
 	{
         MidiMessage msg = createTerpstraSysEx(boardIndex, cmd, data1, data2, data3, data4);
+        {
+            const MessageManagerLock mml;
+            DBG("RECEIVED MSG FOR BUFFER: " + currentMsgWaitingForAck.getDescription());
+        }
 		sendMessageWithAcknowledge(msg);
 	}
 }
@@ -530,6 +534,7 @@ void TerpstraMidiDriver::sendOldestMessageInQueue()
 		messageBuffer.remove(0);                        // remove from buffer
 		{
 			const MessageManagerLock mmLock;
+            DBG("WAITING FOR RESPONSE TO: " + currentMsgWaitingForAck.getDescription());
 			this->listeners.call(&Listener::midiSendQueueSize, messageBuffer.size());
 		}
 
