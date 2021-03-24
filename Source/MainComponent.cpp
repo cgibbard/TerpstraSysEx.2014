@@ -183,6 +183,13 @@ bool MainContentComponent::pasteCurrentSubBoardData()
 		return false;
 }
 
+bool MainContentComponent::setDeveloperMode(bool developerModeOn)
+{
+	curvesArea->setDeveloperMode(developerModeOn);
+	globalSettingsArea->setDeveloperMode(developerModeOn);
+	return true;
+}
+
 void MainContentComponent::midiMessageReceived(const MidiMessage& midiMessage)
 {
     if (TerpstraSysExApplication::getApp().getMidiDriver().messageIsTerpstraConfigurationDataReceptionMessage(midiMessage))

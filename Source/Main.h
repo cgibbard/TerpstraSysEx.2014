@@ -72,6 +72,8 @@ public:
 	bool copySubBoardData();
 	bool pasteSubBoardData();
 
+	bool toggleDeveloperMode();
+
 	bool generalOptionsDialog();
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
