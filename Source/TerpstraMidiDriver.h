@@ -229,13 +229,13 @@ public:
 	void sendVelocityIntervalConfigRequest();
 
 	// This command is used to read back the serial identification number of the keyboard.
-	void sendGetSerialIdentityRequest();
+	void sendGetSerialIdentityRequest(bool overrideEditMode = false);
 	MidiMessage getSerialIdentityRequestMessage() const;
 
 	// This command is used to read back the current Lumatone firmware revision.
 	// The firmware version format is in the form {Major}.{Minor}.{Revision}
 	// If the board has not been initialized, the Beaglebone will contain a firmware revision of 0.0.0 for the board.
-	void sendGetFirmwareRevisionRequest();
+	void sendGetFirmwareRevisionRequest(bool overrideEditMode = false);
 	MidiMessage getFirmwareRevisionRequestMessage() const;
 
 	////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ private:
 	MidiMessage createTerpstraSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4) const;
 
     // Send a SysEx message with standardized length
-	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4);
+	void sendSysEx(int boardIndex, unsigned char cmd, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4, bool overrideEditMode = false);
 
 	// Attributes
 protected:

@@ -48,14 +48,14 @@
 
 
 FirmwareTransfer::FirmwareTransfer(TerpstraMidiDriver& driverIn)
-	: juce::Thread("FirmwareThread"), midiDriver(driverIn)
+	: juce::ThreadWithProgressWindow("Lumatone Firmware Update", true, true/*DEBUG*/), midiDriver(driverIn)
 {
 	
 }
 
 FirmwareTransfer::~FirmwareTransfer()
 {
-    signalThreadShouldExit();
+	DBG("Exiting firmware update thread");
 }
 
 int FirmwareTransfer::checkFirmwareFileIntegrity()
@@ -76,7 +76,7 @@ bool FirmwareTransfer::requestFirmwareUpdate(String firmwareFilePath)
 	selectedFileToTransfer = firmwareFilePath;
 	transferRequested = true;
 
-	startThread();
+	runThread();
 
 	return true;
 }
@@ -94,6 +94,8 @@ bool FirmwareTransfer::requestFirmwareDownloadAndUpdate()
 
 void FirmwareTransfer::run()
 {
+	DBG("Started firmware update thread");
+
 	if (threadShouldExit())
 	{
 		return;
@@ -111,8 +113,6 @@ void FirmwareTransfer::run()
 		prepareForUpdate();
 		transferRequested = false;
 	}
-
-	signalThreadShouldExit();
 }
 
 static int waitForSSHSocket(int socket_fd, LIBSSH2_SESSION* session)
@@ -180,17 +180,27 @@ bool FirmwareTransfer::prepareForUpdate()
 	{
 		StatusCode returnStatus = performFirmwareUpdate();
 
+		if (threadShouldExit())
+			return false;
+
 		if (returnStatus == StatusCode::NoErr)
 		{
+			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::VerificationBegin);
+			//setProgress(statusCodeToProgressPercent(StatusCode::VerificationBegin));
+
 			// TODO: start verification process
-			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::NoErr);
+			while (!threadShouldExit()) {}; // LOL DEBUG
+
 			return true;
 		}
+
+		// Failure with some error
 		else if ((int)returnStatus < 0)
 		{
 			listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, returnStatus);
-			// TODO: need to do anything else before shutdown?
+			// TODO: need to do anything else before shutdown? Output a log file?
 		}
+
 		else
 		{
 			// This currently shouldn't happen
@@ -203,6 +213,14 @@ bool FirmwareTransfer::prepareForUpdate()
 	}
 
 	return false;
+}
+
+void FirmwareTransfer::postUpdate(StatusCode codeIn)
+{
+	DBG("Firmware Transfer update: " + String((int)codeIn));
+	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, codeIn);
+	//setProgress(statusCodeToProgressPercent(codeIn));
+	progressMadeSinceUpdate = false;
 }
 
 // adapted from:
@@ -275,8 +293,6 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
     
 	stat(filePath, &fileinfo);
 
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::SessionBegin);
-
 	// Create socket and connect to port 22
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
@@ -313,8 +329,10 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	/* ... start it up. This will trade welcome banners, exchange keys,
 	 * and setup crypto, compression, and MAC layers
 	 */
+	postUpdate(StatusCode::SessionBegin);
     while ((returnCode = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
     STOPDURINGEXEC
+	progressMadeSinceUpdate = true;
 	if (returnCode)
 	{
 		DBG("Failure establishing SSH session, libssh2 error: " + String(returnCode));
@@ -325,11 +343,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 	 * Now, we must properly close the session regardless of outcome
 	 */
 
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::AuthBegin);
-
-	 // Authenticate via password
+	// Authenticate via password
+	postUpdate(StatusCode::AuthBegin);
     while ((returnCode = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN && !threadShouldExit()) {};
     STOPDURINGEXEC
+	progressMadeSinceUpdate = true;
 	if (returnCode != 0)
 	{
 		DBG("Authentication by password failed.\n");
@@ -338,10 +356,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 
 	// BEGIN FIRMWARE FILE TRANSFER
 
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::TransferBegin);
-
+	postUpdate(StatusCode::TransferBegin);
 	/* Send a file via scp. The mode parameter must only have permissions! */
 	do {
+		STOPDURINGEXEC
+
 		channel = libssh2_scp_send(session, targetPath, fileinfo.st_mode & 0777, (unsigned long)fileinfo.st_size);
 
 		if ((!channel) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN))
@@ -352,8 +371,9 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 			return shutdownSSHSession(session, sock, localFile, StatusCode::ChannelErr);
 		}
 
-	} while (!channel && !threadShouldExit());
-    STOPDURINGEXEC
+	} while (!channel);
+	STOPDURINGEXEC
+	progressMadeSinceUpdate = true;
 
 	DBG("SCP session waiting to send file\n");
 	do {
@@ -402,7 +422,11 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 
 	// REQUEST REBOOT FOR FIRMWARE INSTALL
 
-	listeners.call(&FirmwareTransfer::ProcessListener::firmwareTransferUpdate, StatusCode::InstallBegin);
+	postUpdate(StatusCode::InstallBegin);
+
+	// DEBUG
+
+	return shutdownSSHSession(session, sock, nullptr, StatusCode::NoErr);
 
 	/* Exec non-blocking on the remove host */
 	while ((channel = libssh2_channel_open_session(session)) == NULL
@@ -412,6 +436,7 @@ FirmwareTransfer::StatusCode FirmwareTransfer::performFirmwareUpdate()
 		waitForSSHSocket(sock, session);
 	}
     STOPDURINGEXEC
+	progressMadeSinceUpdate = true;
 	if (channel == NULL)
 	{
 		DBG("Error opening channel for reboot request");

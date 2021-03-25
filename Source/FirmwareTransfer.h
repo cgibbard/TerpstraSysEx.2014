@@ -11,8 +11,9 @@
 #pragma once
 #include "TerpstraMidiDriver.h"
 
+#define SSHCONNECTIMEOUT 5000
 
-class FirmwareTransfer : public juce::Thread, public TerpstraMidiDriver::Listener
+class FirmwareTransfer : public juce::ThreadWithProgressWindow, public TerpstraMidiDriver::Listener
 {
 public:
 
@@ -67,6 +68,7 @@ public:
     void run() override;
 
     //=========================================================================
+    
 
     class ProcessListener
     {
@@ -78,6 +80,13 @@ public:
 
     void removeListener(ProcessListener* listenerIn) { listeners.remove(listenerIn); }
 
+
+public:
+
+    static double statusCodeToProgressPercent(int codeIn)
+    {
+        return (double)codeIn / (int)StatusCode::VerificationBegin;
+    }
 
 protected:
 
@@ -93,6 +102,7 @@ private:
     /// <returns></returns>
     int checkFirmwareFileIntegrity(); /***TODO****/
 
+    // Return true if update was successful
     bool       prepareForUpdate();
     StatusCode performFirmwareUpdate();
 
@@ -105,6 +115,11 @@ private:
     void midiSendQueueSize(int queueSize) override {};
     void generalLogMessage(String textMessage, HajuErrorVisualizer::ErrorLevel errorLevel) override {};
 
+
+private:
+
+    void postUpdate(StatusCode codeIn);
+
 private:
 
     TerpstraMidiDriver& midiDriver;
@@ -114,4 +129,7 @@ private:
 
     bool downloadRequested = false;
     bool transferRequested = false;
+
+    // For shortening the built-in libssh2 timeout period
+    bool progressMadeSinceUpdate = false;
 };

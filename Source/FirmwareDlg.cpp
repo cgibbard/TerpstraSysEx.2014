@@ -58,7 +58,9 @@ FirmwareDlg::FirmwareDlg()
 
 FirmwareDlg::~FirmwareDlg()
 {
-
+    // Should check "who" paused it in the future
+    TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
+    TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
 }
 
 void FirmwareDlg::paint(Graphics& g)
@@ -103,10 +105,17 @@ void FirmwareDlg::buttonClicked(Button* btn)
     //}
     if (btn == doUpdateBtn.get())
     {
+        if (TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiInputIndex() < 0 || TerpstraSysExApplication::getApp().getMidiDriver().getLastMidiOutputIndex() < 0)
+        {
+            AlertWindow::showMessageBox(AlertWindow::AlertIconType::NoIcon, "Not connected", "Please connect the Lumatone via USB before performing a firmware update.", "Ok", this);
+            return;
+        }
+
         DBG("Update requested");
 
         if (firmwareFileSelected.existsAsFile())
         {
+            TerpstraSysExApplication::getApp().getPropertiesFile()->setValue("LastFirmwareBinPath", firmwareFileSelected.getParentDirectory().getFullPathName());
             initializeFirmwareUpdate();
         }
         else
@@ -133,9 +142,25 @@ void FirmwareDlg::initializeFirmwareUpdate()
 {
     firmwareTransfer.reset(new FirmwareTransfer(TerpstraSysExApplication::getApp().getMidiDriver()));
     firmwareUpdateInProgress = true;
+    numberOfWaitIncrements = 0;
     firmwareTransfer->addListener(this);
     firmwareTransfer->requestFirmwareUpdate(firmwareFileSelected.getFullPathName());
-    startTimer(infoUpdateTimeoutMs);
+    //startTimer(infoUpdateTimeoutMs);
+}
+
+void FirmwareDlg::initializeWaitForUpdate()
+{
+    waitingForUpdateConfirmation = true;
+    TerpstraSysExApplication::getApp().getDeviceMonitor().initializeFirmwareUpdateMode();
+    TerpstraSysExApplication::getApp().getMidiDriver().refreshDeviceLists();
+    TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(false);
+    TerpstraSysExApplication::getApp().getMidiDriver().addListener(this);
+    startTimer(updateIncrementTimeoutMs);
+}
+
+double FirmwareDlg::numIncrementsToProgress(int numberOfIncrements)
+{
+    return numberOfWaitIncrements / (double)maxUpdateIncrements;
 }
 
 void FirmwareDlg::fileChanged(PathBrowserComponent* source, File newFile)
@@ -147,6 +172,8 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
 {
     String postMsg;
 
+    // TODO: Revise with progress bar
+    // Probably should all be handled by FirmwareTransfer
     switch (statusCode)
     {
     case FirmwareTransfer::StatusCode::Initialize:
@@ -170,11 +197,11 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         break;
 
     case FirmwareTransfer::StatusCode::InstallBegin:
-        postMsg = translate("Rebooting device for installation...");
+        postMsg = translate("Rebooting device for installation");
         break;
 
     case FirmwareTransfer::StatusCode::VerificationBegin:
-        postMsg = translate("Verifying installation was successful...");
+        postMsg = translate("Installing update...");
         break;
 
     case FirmwareTransfer::StatusCode::IntegrityErr:
@@ -209,13 +236,29 @@ void FirmwareDlg::firmwareTransferUpdate(FirmwareTransfer::StatusCode statusCode
         postMsg = translate("Please wait for your Lumatone to install the firmware.");
     }
 
+    if (statusCode == FirmwareTransfer::StatusCode::InstallBegin)
+    {
+        TerpstraSysExApplication::getApp().getDeviceMonitor().setPaused(true);
+        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiInput();
+        TerpstraSysExApplication::getApp().getMidiDriver().closeMidiOutput();
+    }
+    if (statusCode == FirmwareTransfer::StatusCode::VerificationBegin)
+    {
+        initializeWaitForUpdate();
+    }
+
     if ((int)statusCode <= 0)
     {
         firmwareUpdateInProgress = false;
     }
 
-    msgLog += (postMsg + "\n");
-    infoNeedsUpdate = true;
+    numberOfWaitIncrements += (int)(maxUpdateIncrements * FirmwareTransfer::statusCodeToProgressPercent(1) * 0.4);
+
+    firmwareTransfer->setStatusMessage(postMsg);
+    firmwareTransfer->setProgress(numIncrementsToProgress(numberOfWaitIncrements));
+
+    //msgLog += (postMsg + "\n");
+    //infoNeedsUpdate = true;
 }
 
 void FirmwareDlg::timerCallback()
@@ -225,6 +268,27 @@ void FirmwareDlg::timerCallback()
         infoBox->setText(msgLog);
         infoNeedsUpdate = false;
     }
+    if (waitingForUpdateConfirmation)
+    {
+        numberOfWaitIncrements++;
+        firmwareTransfer->setProgress(numIncrementsToProgress(numberOfWaitIncrements));
+
+        if (numberOfWaitIncrements >= maxUpdateIncrements)
+        {
+            DBG("TIMEOUT EXCEEDED BEFORE GETTING FIRMWARE CONFIRMATION");
+
+            stopTimer();
+            firmwareTransfer->signalThreadShouldExit();
+            TerpstraSysExApplication::getApp().getDeviceMonitor().cancelFirmwareUpdateMode();
+            TerpstraSysExApplication::getApp().getMidiDriver().removeListener(this);
+            
+            AlertWindow::showMessageBox(
+                AlertWindow::AlertIconType::WarningIcon,
+                "Firmware update not confirmed",
+                "Your Lumatone appears to still be updating, or may have been disconnected. Make sure Lumatone is powered on and connected, and the when Lumatone is ready it will connect successfully.",
+                "Ok", this);
+        }
+    }
 }
 
 void FirmwareDlg::exitSignalSent()
@@ -233,3 +297,24 @@ void FirmwareDlg::exitSignalSent()
     firmwareTransfer = nullptr;
     stopTimer();
 }
+
+void FirmwareDlg::midiMessageReceived(const MidiMessage& midiMessage)
+{
+    auto& midiDriver = TerpstraSysExApplication::getApp().getMidiDriver();
+    if (midiDriver.messageIsGetFirmwareRevisionResponse(midiMessage))
+    {
+        auto version = TerpstraMidiDriver::FirmwareVersion::fromGetFirmwareRevisionMsg(midiMessage);
+        if (version.major > 0 || version.minor > 0 || version.revision > 0)
+        {
+            DBG("Confirmed update to firmware version " + version.toString());
+            
+            midiDriver.removeListener(this);
+            stopTimer();
+            firmwareTransfer->setProgress(1.0);
+            firmwareTransfer->signalThreadShouldExit();
+            updateFirmwareVersionLabel();
+            TerpstraSysExApplication::getApp().getDeviceMonitor().intializeConnectionLossDetection();
+        }
+    }
+}
+
