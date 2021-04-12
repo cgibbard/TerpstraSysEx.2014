@@ -17,7 +17,7 @@
 
 #include "TerpstraMidiDriver.h"
 
-class DeviceActivityMonitor : public juce::Thread,
+class DeviceActivityMonitor : public juce::Timer,
                               public juce::MidiInputCallback,
                               public TerpstraMidiDriver::Listener, 
                               public juce::ChangeBroadcaster
@@ -66,9 +66,9 @@ public:
     void intializeConnectionLossDetection(bool inFirmwareMode = false);
 
     //=========================================================================
-    // juce::Thread Implementation
+    // juce::Timer Implementation
 
-    void run() override;
+    void timerCallback() override;
 
     //=========================================================================
     // juce::MidiInputCallback Implementation
@@ -141,7 +141,7 @@ private:
 
     const int               responseTimeoutMs; // Pull from properties, currently 1000 by default
     const int               pingRoutineTimeoutMs = 1000;
-    const int               inactivityTimeoutMs  = 5000;
+    const int               inactivityTimeoutMs  = 500;
     
     int                     pingOutputIndex = -1;
 

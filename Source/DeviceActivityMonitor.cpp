@@ -13,8 +13,7 @@
 
 
 DeviceActivityMonitor::DeviceActivityMonitor(TerpstraMidiDriver& midiDriverIn, int responseTimeoutMsIn)
-    : midiDriver(&midiDriverIn), responseTimeoutMs(responseTimeoutMsIn),
-      Thread("DeviceActivityMonitor")
+    : midiDriver(&midiDriverIn), responseTimeoutMs(responseTimeoutMsIn)
 {
     detectMessage = midiDriver->getSerialIdentityRequestMessage();
     detectDevicesIfDisconnected = TerpstraSysExApplication::getApp().getPropertiesFile()->getBoolValue("DetectDeviceIfDisconnected", true);
@@ -43,8 +42,8 @@ void DeviceActivityMonitor::setCheckForInactivity(bool monitorActivity)
 void DeviceActivityMonitor::startDetectionRoutine()
 {
     jassert(!deviceDetectInProgress);
-    if (threadShouldExit())
-        return;
+    //if (threadShouldExit())
+    //    return;
 
     midiDriver->removeListener(this);
 
@@ -66,7 +65,8 @@ void DeviceActivityMonitor::startDetectionRoutine()
     {
         DBG("No input and output MIDI device combination could be made.");
         deviceDetectInProgress = false;
-        wait(pingRoutineTimeoutMs);
+        //wait(pingRoutineTimeoutMs);
+        startTimer(pingRoutineTimeoutMs);
     }
 }
 
@@ -78,7 +78,8 @@ void DeviceActivityMonitor::pingNextOutput()
     {
         DBG("Pinging " + outputsToPing[pingOutputIndex]->getName());
         outputsToPing[pingOutputIndex]->sendMessageNow(detectMessage);
-        wait(responseTimeoutMs);
+        //wait(responseTimeoutMs);
+        startTimer(responseTimeoutMs);
     }
 
     // Tried all devices, set timeout for next attempt
@@ -86,7 +87,8 @@ void DeviceActivityMonitor::pingNextOutput()
     {
         DBG("Detect device timeout.");
         deviceDetectInProgress = false;
-        wait(pingRoutineTimeoutMs);
+        //wait(pingRoutineTimeoutMs);
+        startTimer(pingRoutineTimeoutMs);
     }
 }
 
@@ -95,7 +97,8 @@ void DeviceActivityMonitor::initializeDeviceDetection()
     deviceConnectionMode = DetectConnectionMode::lookingForDevice;
     expectedResponseReceived = false;
     deviceDetectInProgress = false;
-    startThread();
+    //startThread();
+    startTimer(pingRoutineTimeoutMs);
 }
 
 void DeviceActivityMonitor::stopDeviceDetection()
@@ -116,13 +119,18 @@ void DeviceActivityMonitor::stopDeviceDetection()
 
 void DeviceActivityMonitor::intializeConnectionLossDetection(bool inFirmwareMode)
 {
-    if (inFirmwareMode)
-        deviceConnectionMode = DetectConnectionMode::gettingFirmwareVersion;
-    else
-        deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
+    if (checkConnectionOnInactivity)
+    {
+        if (inFirmwareMode)
+            deviceConnectionMode = DetectConnectionMode::gettingFirmwareVersion;
+        else
+            deviceConnectionMode = DetectConnectionMode::waitingForInactivity;
 
-    waitingForTestResponse = false;
-    midiDriver->addListener(this);
+        waitingForTestResponse = false;
+        midiDriver->addListener(this);
+
+        startTimer(inactivityTimeoutMs);
+    }
 }
 
 void DeviceActivityMonitor::initializeFirmwareUpdateMode()
@@ -178,15 +186,15 @@ void DeviceActivityMonitor::closeOutputDevices()
 
 bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::DetectConnectionMode modeToUse)
 {
-    if (isThreadRunning() && threadShouldExit())
-        return false;
+    //if (isThreadRunning() && threadShouldExit())
+    //    return false;
 
     MidiDeviceInfo inputInfo = midiDriver->getMidiOutputInfo();
     MidiDeviceInfo outputInfo = midiDriver->getMidiInputInfo();
     
     if (inputInfo.identifier != "" && outputInfo.identifier != "")
     {
-        //DBG("Testing connection of input " + inputInfo.name + " and output " + outputInfo.name);
+        DBG("Testing connection of input " + inputInfo.name + " and output " + outputInfo.name);
         midiDriver->addListener(this);
         {
             ScopedLock lock(criticalSection);
@@ -199,6 +207,7 @@ bool DeviceActivityMonitor::initializeConnectionTest(DeviceActivityMonitor::Dete
             
             waitingForTestResponse = true;
             expectedResponseReceived = false;
+            startTimer(responseTimeoutMs);
         }
         
         return true;
@@ -259,11 +268,13 @@ void DeviceActivityMonitor::checkDetectionStatus()
     }
 }
 
-void DeviceActivityMonitor::run()
+void DeviceActivityMonitor::timerCallback()
 {
-    while (!threadShouldExit() && (detectDevicesIfDisconnected || checkConnectionOnInactivity))
+    stopTimer();
+
+    if (detectDevicesIfDisconnected || checkConnectionOnInactivity)
     {
-        while (activityIsPaused) { if (threadShouldExit()) return; };
+        while (activityIsPaused) { }; // todo activity termination timeout?
 
         if (deviceConnectionMode < DetectConnectionMode::testingConnection)
         {
@@ -285,15 +296,19 @@ void DeviceActivityMonitor::run()
             {
                 if (midiQueueSize == 0)
                 {
-                    activitySinceLastTimeout = false;
-                    wait(inactivityTimeoutMs);
-                    if (midiQueueSize == 0 && !activitySinceLastTimeout)
+                    //activitySinceLastTimeout = false;
+                    //wait(inactivityTimeoutMs);
+                    //if (midiQueueSize == 0 && !activitySinceLastTimeout)
                         initializeConnectionTest(deviceConnectionMode);
+                }
+                else
+                {
+                    startTimer(inactivityTimeoutMs);
                 }
             }
             else if (!expectedResponseReceived)
             {
-                wait(responseTimeoutMs);
+                //wait(responseTimeoutMs);
                 // Disconnected!
                 if (!expectedResponseReceived)
                 {
@@ -306,6 +321,7 @@ void DeviceActivityMonitor::run()
                     onDisconnection();
                 }
             }
+
         }
         else if (deviceConnectionMode == DetectConnectionMode::testingConnection)
         {
@@ -327,8 +343,8 @@ void DeviceActivityMonitor::run()
         }
     }
 
-    deviceDetectInProgress = false;
-    waitingForTestResponse = false;
+    //deviceDetectInProgress = false;
+    //waitingForTestResponse = false;
 }
 
 //=========================================================================
@@ -353,7 +369,7 @@ void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
             waitingForTestResponse = false;
             expectedResponseReceived = true;
 
-            if (!isThreadRunning())
+            if (confirmedInputIndex < 0 || confirmedOutputIndex < 0)
             {
                 int currentInput = midiDriver->getLastMidiInputIndex();
                 int currentOutput = midiDriver->getLastMidiOutputIndex();
@@ -372,6 +388,9 @@ void DeviceActivityMonitor::midiMessageReceived(const MidiMessage& midiMessage)
             deviceDetectInProgress = false;
         }
     }
+
+    if (checkConnectionOnInactivity)
+        startTimer(inactivityTimeoutMs);
 }
 
 void DeviceActivityMonitor::onSuccessfulDetection()
@@ -417,7 +436,7 @@ void DeviceActivityMonitor::onDisconnection()
 
     if (detectDevicesIfDisconnected)
     {
-        wait(pingRoutineTimeoutMs);
+        //wait(pingRoutineTimeoutMs);
         startDetectionRoutine();
         // Nullptrs are checked before opening devices but this could maybe be designed better
         // to prevent trying to open invalid (disconnected) devices altogether

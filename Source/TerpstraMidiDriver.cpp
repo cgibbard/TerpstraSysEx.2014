@@ -490,6 +490,10 @@ bool TerpstraMidiDriver::messageIsGetFirmwareRevisionResponse(const MidiMessage&
 
 void TerpstraMidiDriver::sendMessageWithAcknowledge(const MidiMessage& message)
 {
+    {
+        const MessageManagerLock mml;
+        DBG("SENDING MSG:\t" + message.getDescription());
+    }
     // If there is no MIDI input port active: just send, without expecting acknowledge
 	// ToDo Or do nothing?
     if (midiInput == nullptr)
