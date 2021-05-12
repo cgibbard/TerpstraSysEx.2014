@@ -12,23 +12,26 @@
 #include "../LumatoneEditorLookAndFeel.h"
 #include "CalibrationDlg.h"
 #include "FirmwareDlg.h"
+#include "DeveloperDlg.h"
 
 typedef enum {
     Calibration = 0,
-    Firmware = 1
+    Firmware = 1,
+    Developer
 } LumatoneEditorSettingCategories;
 
 class SettingsCategoryModel : public ListBoxModel, public ChangeBroadcaster
 {
 public:
 
-    SettingsCategoryModel(StringArray categoryNamesIn)
-    {
-        for (auto name : categoryNamesIn)
-        {
-            categories.add(name);
-        }
-    }
+    SettingsCategoryModel();
+
+    void refreshCategories();
+    
+    void setDeveloperMode(bool enableDeveloperMode);
+
+    //=========================================================================
+    // juce::ListBoxModel Implementation
 
     int getNumRows() override { return categories.size(); }
 
@@ -36,12 +39,12 @@ public:
 
     void selectedRowsChanged(int lastRowSelected) override { sendChangeMessage(); }
     
-    
 
     //=========================================================================
 private:
     Array<String> categories;
     
+    bool showDeveloperPanel = false;
 };
 
 class SettingsContainer : public Component, protected ChangeListener
@@ -62,6 +65,8 @@ public:
     //=========================================================================
     
     void showPanel(int editorSettingCategory);
+
+    void setDeveloperMode(bool enableDeveloperMode);
 
 private:
 

@@ -52,6 +52,7 @@ public:
 	Array<LumatoneEditorColourPalette>& getColourPalettes() { return colourPalettes; }
 	Font getAppFont(LumatoneEditorFont fontIdIn, float height = 12.0f) { return appFonts.getFont(fontIdIn, height); }
 	int getOctaveBoardSize() const { return lumatoneController.getOctaveSize(); }
+	bool isDeveloperModeActive() const { return propertiesFile->getBoolValue("DeveloperMode", false); }
 
 	FirmwareVersion getFirmwareVersion() const { return lumatoneController.getFirmwareVersion(); }
 	String getFirmwareVersionStr() const { return lumatoneController.getFirmwareVersion().toString(); }
@@ -81,6 +82,7 @@ public:
 	bool noteOnOffVelocityCurveDialog();
 	bool faderVelocityCurveDialog();
 	bool aftertouchVelocityCurveDialog();
+	//bool launchSettingsWindow();
 
 	bool openRecentFile(int recentFileIndex);
 	bool openFromCurrentFile();
@@ -183,9 +185,11 @@ private:
 	File						userMappingsDirectory;
 	File						userPalettesDirectory;
 
+	bool						developerModeActive = false;
+	//SettingsContainer*			settingsWindow;
+
 	Array<LumatoneEditorColourPalette> colourPalettes;
 
-	// Communication with Lumatone
 	LumatoneController			lumatoneController;
 };
 

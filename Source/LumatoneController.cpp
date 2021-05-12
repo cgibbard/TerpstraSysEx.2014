@@ -425,6 +425,11 @@ void LumatoneController::sendGetSerialIdentityRequest()
     midiDriver.sendGetSerialIdentityRequest();
 }
 
+void LumatoneController::setDemoModeState(bool turnDemoModeOn)
+{
+    midiDriver.startDemoMode(turnDemoModeOn);
+}
+
 void LumatoneController::startCalibrateKeys()
 {
     midiDriver.sendCalibrateKeys();

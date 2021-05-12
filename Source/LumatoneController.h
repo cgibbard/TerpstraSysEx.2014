@@ -40,6 +40,9 @@ public:
     LumatoneController();
     ~LumatoneController();
 
+    // For low-level implementations
+    TerpstraMidiDriver& getMidiDriver() { return midiDriver; }
+
     //============================================================================
     // Methods to configure firmware communication parameters
 
@@ -185,6 +188,8 @@ public:
 
     // This command is used to read back the serial identification number of the keyboard.
     void sendGetSerialIdentityRequest();
+
+    void setDemoModeState(bool turnDemoModeOn);
 
     void startCalibrateKeys();
 

@@ -391,10 +391,10 @@ public:
 	// For CMD 44h response: retrieve 12-bit expression pedal adc threshold
 	FirmwareSupport::Error unpackGetExpressionPedalThresholdResponse(const MidiMessage& response, int& thresholdValue);
 
-
-private:
 	// Low-level SysEx message sending
 	void sendMessageWithAcknowledge(const MidiMessage& message);
+
+private:
 
 	// Send the oldest message in queue and start waiting for answer
 	void sendOldestMessageInQueue();

@@ -169,8 +169,6 @@ MidiEditArea::MidiEditArea (LumatoneEditorLookAndFeel& lookAndFeelIn)
 
     //[Constructor] You can add your own custom stuff here..
 	TerpstraSysExApplication::getApp().getLumatoneController().addStatusListener(this);
-	auto inputs = TerpstraSysExApplication::getApp().getLumatoneController().getMidiInputList();
-	auto outputs = TerpstraSysExApplication::getApp().getLumatoneController().getMidiOutputList();
 	refreshInputMenuAndSetSelected(0, dontSendNotification);
 	refreshOutputMenuAndSetSelected(0, dontSendNotification);
 	setConnectivity(false);

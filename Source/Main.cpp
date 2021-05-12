@@ -96,6 +96,8 @@ TerpstraSysExApplication::TerpstraSysExApplication()
 
 	reloadColourPalettes();
 
+	developerModeActive = isDeveloperModeActive();
+
 	lumatoneController.setDeviceDetectionTimeout(propertiesFile->getIntValue("DetectDevicesTimeout", 500));
 	lumatoneController.checkConnectionWhenInactive(propertiesFile->getBoolValue("CheckConnectionIfInactive", true));
 
@@ -448,9 +450,13 @@ bool TerpstraSysExApplication::pasteSubBoardData()
 
 bool TerpstraSysExApplication::toggleDeveloperMode()
 {
-	bool newMode = !propertiesFile->getBoolValue("DeveloperMode");
-	propertiesFile->setValue("DeveloperMode", newMode);
-	return ((MainContentComponent*)(mainWindow->getContentComponent()))->setDeveloperMode(newMode);
+	developerModeActive = !propertiesFile->getBoolValue("DeveloperMode");
+	propertiesFile->setValue("DeveloperMode", developerModeActive);
+
+	//if (settingsWindow != nullptr)
+	//	settingsWindow->setDeveloperMode(developerModeActive);
+
+	return ((MainContentComponent*)(mainWindow->getContentComponent()))->setDeveloperMode(developerModeActive);
 }
 
 bool TerpstraSysExApplication::generalOptionsDialog()
@@ -545,6 +551,29 @@ bool TerpstraSysExApplication::aftertouchVelocityCurveDialog()
 
 	return true;
 }
+
+//bool TerpstraSysExApplication::launchSettingsWindow()
+//{
+//	auto settingsWindow = new SettingsContainer();
+//	settingsWindow->setLookAndFeel(&lookAndFeel);
+//
+//	DialogWindow::LaunchOptions launchOptions;
+//	launchOptions.content.setOwned(settingsWindow);
+//	launchOptions.content->setSize(480, 240);
+//
+//	launchOptions.dialogTitle = "Settings";
+//	launchOptions.escapeKeyTriggersCloseButton = true;
+//	launchOptions.useNativeTitleBar = false;
+//	launchOptions.resizable = false;
+//
+//	launchOptions.dialogBackgroundColour = Colour();
+//
+//	auto dw = launchOptions.launchAsync();
+//	dw->centreWithSize(548, 240);
+//	dw->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
+//
+//	return true;
+//}
 
 // open a file from the "recent files" menu
 bool TerpstraSysExApplication::openRecentFile(int recentFileIndex)

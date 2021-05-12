@@ -11,6 +11,11 @@
 #include "SettingsContainer.h"
 #include "../Main.h"
 
+SettingsCategoryModel::SettingsCategoryModel()
+{
+    refreshCategories();
+}
+
 void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
 {
     Colour backgroundColour = (rowIsSelected) ? Colours::teal : Colour();
@@ -27,12 +32,33 @@ void SettingsCategoryModel::paintListBoxItem(int rowNumber, Graphics& g, int wid
     g.drawFittedText(categories[rowNumber], rowBounds.withLeft(8), Justification::left, 1, 1.0f);
 }
 
+void SettingsCategoryModel::refreshCategories()
+{
+    categories.clear();
+
+    categories = {
+        "Calibrate",
+        "Firmware"
+    };
+
+    if (showDeveloperPanel)
+        categories.add("Developer");
+}
+
+void SettingsCategoryModel::setDeveloperMode(bool enableDeveloperMode)
+{ 
+    showDeveloperPanel = enableDeveloperMode;
+    refreshCategories();
+}
+
 //=========================================================================
 
 SettingsContainer::SettingsContainer()
-    : Component("SettingsContainer"),
-      model({"Calibrate", "Firmware"})
+    : Component("SettingsContainer")
 {
+    bool showDevMode = TerpstraSysExApplication::getApp().isDeveloperModeActive();
+    model.setDeveloperMode(showDevMode);
+
     categoryList.reset(new ListBox("CategoryList"));
     categoryList->setModel(&model);
 
@@ -91,6 +117,10 @@ void SettingsContainer::showPanel(int editorSettingCategory)
     case LumatoneEditorSettingCategories::Firmware:
         newPanel = new FirmwareDlg();
         break;
+
+    case LumatoneEditorSettingCategories::Developer:
+        newPanel = new DeveloperDlg();
+        break;
     }
 
     if (newPanel)
@@ -104,4 +134,10 @@ void SettingsContainer::showPanel(int editorSettingCategory)
         settingsPanel->setLookAndFeel(&getLookAndFeel());
         resized();
     }
+}
+
+void SettingsContainer::setDeveloperMode(bool enableDeveloperMode)
+{
+    model.setDeveloperMode(enableDeveloperMode);
+    resized();
 }
