@@ -89,6 +89,13 @@
               file="Source/Settings/CalibrationDlg.cpp"/>
         <FILE id="qfDjlv" name="CalibrationDlg.h" compile="0" resource="0"
               file="Source/Settings/CalibrationDlg.h"/>
+        <FILE id="LJ5dy1" name="CommandLineInterface.cpp" compile="1" resource="0"
+              file="Source/Settings/CommandLineInterface.cpp"/>
+        <FILE id="zm2rdC" name="CommandLineInterface.h" compile="0" resource="0"
+              file="Source/Settings/CommandLineInterface.h"/>
+        <FILE id="UljDTg" name="DeveloperDlg.cpp" compile="1" resource="0"
+              file="Source/Settings/DeveloperDlg.cpp"/>
+        <FILE id="O49EI2" name="DeveloperDlg.h" compile="0" resource="0" file="Source/Settings/DeveloperDlg.h"/>
         <FILE id="QlIB8f" name="FirmwareDlg.cpp" compile="1" resource="0" file="Source/Settings/FirmwareDlg.cpp"/>
         <FILE id="loeebJ" name="FirmwareDlg.h" compile="0" resource="0" file="Source/Settings/FirmwareDlg.h"/>
         <FILE id="jxF9Op" name="SettingsContainer.cpp" compile="1" resource="0"
