@@ -787,6 +787,11 @@ void TerpstraSysExApplication::setHasChangesToSave(bool value)
 	}
 }
 
+void TerpstraSysExApplication::addOpenedDialogWindow(DialogWindow* dialogWindowIn)
+{
+	openDialogWindows.add(dialogWindowIn);
+}
+
 bool TerpstraSysExApplication::aboutTerpstraSysEx()
 {
 	String m;
@@ -825,9 +830,11 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	options.resizable = false;
 
 
-	DialogWindow* dw = options.launchAsync();
+	auto dw = options.launchAsync();
 	dw->setLookAndFeel(&lookAndFeel);
 	dw->centreWithSize(400, 260);
+
+	addOpenedDialogWindow(dw);
 
 	return true;
 }
