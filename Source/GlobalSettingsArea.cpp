@@ -213,7 +213,7 @@ void GlobalSettingsArea::buttonClicked (juce::Button* buttonThatWasClicked)
         settingsDialog->setLookAndFeel(&TerpstraSysExApplication::getApp().getLookAndFeel().compactWindowStyle);
         settingsDialog->centreWithSize(548, 240);
 
-        TerpstraSysExApplication::getApp().addOpenedDialogWindow(settingsDialog);
+        TerpstraSysExApplication::getApp().setOpenDialogWindow(settingsDialog);
 
         //[/UserButtonCode_buttonCalibrate]
     }

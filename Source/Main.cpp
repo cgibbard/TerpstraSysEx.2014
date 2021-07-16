@@ -787,9 +787,16 @@ void TerpstraSysExApplication::setHasChangesToSave(bool value)
 	}
 }
 
-void TerpstraSysExApplication::addOpenedDialogWindow(DialogWindow* dialogWindowIn)
+//https://forum.juce.com/t/closing-dialog-windows-on-shutdown/27326/6
+void TerpstraSysExApplication::setOpenDialogWindow(DialogWindow* dialogWindowIn)
 {
-	openDialogWindows.add(dialogWindowIn);
+    dialogWindow.reset(dialogWindowIn);
+
+	// attach callback to window to release std::unique_ptr when the window is closed
+	ModalComponentManager::getInstance()->attachCallback(dialogWindow.get(), ModalCallbackFunction::create([&](int r)
+	{
+        dialogWindow.release();
+	}));
 }
 
 bool TerpstraSysExApplication::aboutTerpstraSysEx()
@@ -834,7 +841,7 @@ bool TerpstraSysExApplication::aboutTerpstraSysEx()
 	dw->setLookAndFeel(&lookAndFeel);
 	dw->centreWithSize(400, 260);
 
-	addOpenedDialogWindow(dw);
+	setOpenDialogWindow(dw);
 
 	return true;
 }
